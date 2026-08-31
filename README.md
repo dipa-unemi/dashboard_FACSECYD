@@ -2,10 +2,13 @@
 
 Dashboard académico de perfil estudiantil para la FACSECYD.
 
+**🔗 Ver el dashboard en vivo:** https://evelyngarcia02.github.io/dashboard_FACSECYD/docs/index.html
+
 ## Estructura
 
 ```
 data/    Fuentes de datos en formato Excel (gestionadas con Git LFS)
+docs/    Dashboard web (HTML/CSS/JS), publicado con GitHub Pages
 ```
 
 ## Requisitos
