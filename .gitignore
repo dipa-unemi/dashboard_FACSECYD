@@ -17,3 +17,7 @@ desktop.ini
 # Temporales de Excel/Office
 ~$*
 *.tmp
+.Rproj.user
+
+# Datos fuente (privados, no deben estar en el repo público)
+data/
