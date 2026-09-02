@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo de inserción &middot; Dashboard Población Estudiantil FACSECYD</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #f6f7f7;
+    --surface:     #ffffff;
+    --surface-2:   #eef1f3;
+    --ink:         #002334;
+    --ink-2:       #35505e;
+    --ink-muted:   #7c8f99;
+    --border:      rgba(0,35,52,0.12);
+    --accent:      #ef6c00;
+    --accent-soft: #fbdcbb;
+    --s1: #0a4a60;
+    --radius: 8px;
+    --font: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page:      #001420;
+      --surface:   #002334;
+      --surface-2: #073547;
+      --ink:       #ffffff;
+      --ink-2:     #b9cdd6;
+      --ink-muted: #7c93a0;
+      --border:    rgba(255,255,255,0.14);
+      --accent:    #ff8a3d;
+      --accent-soft: rgba(255,138,61,0.18);
+      --s1: #3fa0c9;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page:      #001420;
+    --surface:   #002334;
+    --surface-2: #073547;
+    --ink:       #ffffff;
+    --ink-2:     #b9cdd6;
+    --ink-muted: #7c93a0;
+    --border:    rgba(255,255,255,0.14);
+    --accent:    #ff8a3d;
+    --accent-soft: rgba(255,138,61,0.18);
+    --s1: #3fa0c9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font);
+    line-height: 1.5;
+  }
+
+  /* --- barra de aviso: deja clarísimo que esto es una demo, no el sitio real --- */
+  .demo-flag {
+    background: var(--accent);
+    color: #1a0f00;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    padding: 8px 16px;
+    letter-spacing: 0.02em;
+  }
+
+  /* --- simulacro de sitio institucional --- */
+  .site-header {
+    background: var(--s1);
+    color: #ffffff;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 4px solid var(--accent);
+  }
+  .site-header .crest {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--s1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .site-header .name {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .site-header .name small {
+    display: block;
+    font-weight: 400;
+    font-size: 11.5px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+  .site-nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 28px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    overflow-x: auto;
+  }
+  .site-nav span {
+    padding: 12px 0;
+    white-space: nowrap;
+  }
+  .site-nav span.active {
+    color: var(--s1);
+    font-weight: 700;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 36px 32px 64px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  h1 {
+    margin: 0 0 10px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .lede {
+    margin: 0 0 28px;
+    font-size: 14.5px;
+    color: var(--ink-2);
+    max-width: 62ch;
+  }
+
+  .embed-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .embed-card .label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    font-weight: 700;
+    margin: 0 0 14px;
+  }
+  .embed-card .label .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #1baf7a;
+    box-shadow: 0 0 0 3px rgba(27,175,122,0.18);
+  }
+  .frame-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 */
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .frame-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .note {
+    margin-top: 24px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    font-size: 13px;
+    color: var(--ink-2);
+  }
+  .note strong { color: var(--ink); }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-muted);
+    padding: 24px 32px 40px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="demo-flag">MAQUETA DE DEMOSTRACIÓN &mdash; simula cómo se vería insertado en el sitio real de la UNEMI</div>
+
+  <header class="site-header">
+    <div class="crest">U</div>
+    <div class="name">
+      Universidad Estatal de Milagro
+      <small>Facultad de Ciencias de la Educación y de la Comunicación</small>
+    </div>
+  </header>
+  <nav class="site-nav">
+    <span>Inicio</span>
+    <span>La facultad</span>
+    <span>Carreras</span>
+    <span class="active">Indicadores</span>
+    <span>Investigación</span>
+    <span>Contacto</span>
+  </nav>
+
+  <main>
+    <p class="eyebrow">Indicadores &middot; Población estudiantil</p>
+    <h1>Dashboard de población estudiantil FACSECYD</h1>
+    <p class="lede">
+      Panel interactivo con la evolución de matrículas, distribución por sexo, edad, carrera,
+      modalidad, sede, grupo socioeconómico y procedencia geográfica de los últimos periodos académicos.
+    </p>
+
+    <div class="embed-card">
+      <p class="label"><span class="dot"></span> Reporte cargado en vivo desde Google Looker Studio</p>
+      <div class="frame-wrap">
+        <iframe
+          src="https://datastudio.google.com/embed/reporting/8d3e4f39-4bee-47b1-844c-c430f0ba0829/page/Djp7F"
+          allowfullscreen
+          sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        ></iframe>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Qué demuestra esta página:</strong> el reporte de arriba no es una captura ni una copia &mdash;
+      es el dashboard real, insertado con un <code>&lt;iframe&gt;</code> igual que se haría en cualquier
+      página del sitio institucional. Los filtros, el mapa y las tarjetas responden en vivo. El origen de
+      esta página (GitHub Pages) es distinto al de Looker Studio, lo que confirma que la inserción funciona
+      entre dominios &mdash; tal como funcionaría en <code>unemi.edu.ec</code>.
+    </div>
+  </main>
+
+  <footer>Página de demostración generada para evaluación interna &middot; no es el sitio oficial de la UNEMI</footer>
+
+</body>
+</html>
