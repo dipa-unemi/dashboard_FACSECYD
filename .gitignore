@@ -19,5 +19,9 @@ desktop.ini
 *.tmp
 .Rproj.user
 
+# R: sesion/historial pueden contener microdatos cargados en memoria
+.RData
+.Rhistory
+
 # Datos fuente (privados, no deben estar en el repo público)
 data/

@@ -368,6 +368,41 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
   }
+  .kpi .value-split {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .kpi .value-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .kpi .value-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .kpi .value-item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .kpi .value-item-num {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .kpi .value-item-label {
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
 
   /* Cards */
   .card {
@@ -433,6 +468,36 @@
   body.edit-mode .dcard:hover { outline-color: var(--accent); z-index: 2; }
   body.edit-mode .dcard.dragging { opacity: 0.65; z-index: 50; }
   body.edit-mode .drag-handle { user-select: none; }
+
+  /* Título de sección: un .dcard sin fondo/borde de tarjeta, solo un
+     encabezado -- se mueve y redimensiona igual que el resto en modo edición. */
+  .section-title {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px;
+  }
+  .section-title h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  .kpi-inst-alert {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  body.edit-mode .dcard.section-title {
+    min-width: 160px;
+    min-height: 30px;
+  }
   body.edit-mode .card-head:active { cursor: grabbing; }
 
   @media (max-width: 1180px) {
@@ -465,7 +530,39 @@
      disponible al redimensionar la tarjeta necesitan height:100% en vez de
      auto - el propio SVG (preserveAspectRatio por defecto) se encarga de no
      deformar el mapa, dejando espacio en blanco si la proporción no calza. */
-  svg.world-map, svg.ecuador-map { height: 100%; }
+  svg.world-map, svg.ecuador-map { height: 100%; cursor: grab; }
+  svg.world-map:active, svg.ecuador-map:active { cursor: grabbing; }
+  .map-wrap { overflow: hidden; touch-action: none; }
+  .map-reset-zoom {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 10px;
+    color: var(--ink-2);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .map-reset-zoom:hover { border-color: var(--accent); color: var(--accent); }
+  .map-period-block {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    background: var(--surface);
+    color: var(--ink-muted);
+    font-size: 13px;
+  }
   .bar-label {
     font-family: var(--font-body);
     font-size: 13px;

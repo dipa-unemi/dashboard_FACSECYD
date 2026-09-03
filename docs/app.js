@@ -1,7 +1,13 @@
 (function(){
   "use strict";
 
-  /* ---------- Parse rows (nivel de fila, un registro = una matrícula) ---------- */
+  /* ---------- Parse rows (nivel de COMBINACION de variables, no de persona ni
+     matrícula individual -- ver scripts/agregar_datos.R). Cada fila trae,
+     para una combinación exacta de las 13 dimensiones, cuántas inscripciones
+     (nInsc) caen ahí -- no se usa n_personas de esta tabla porque, al incluir
+     carrera/modalidad/sede en la combinación, siempre coincide con nInsc (una
+     persona no puede tener 2 matrículas dentro de la MISMA combinación exacta
+     de carrera+modalidad+sede+periodo+demografía). ---------- */
   const rows = ROWS_RAW.length ? ROWS_RAW.split("\n") : [];
   const N = rows.length;
   const F = {
@@ -9,15 +15,36 @@
     sede:new Int16Array(N), sexo:new Int16Array(N), etnia:new Int16Array(N),
     disc:new Int16Array(N), ppl:new Int8Array(N), grupo:new Int16Array(N),
     rango:new Int16Array(N), ecuador:new Int16Array(N), provincia:new Int16Array(N), pais:new Int16Array(N),
-    insc:new Int32Array(N), edad:new Int16Array(N), persona:new Int32Array(N)
+    nInsc:new Int32Array(N)
   };
   for (let i=0;i<N;i++){
     const p = rows[i].split("|");
     F.periodo[i]=+p[0]; F.carrera[i]=+p[1]; F.modalidad[i]=+p[2]; F.sede[i]=+p[3];
     F.sexo[i]=+p[4]; F.etnia[i]=+p[5]; F.disc[i]=+p[6]; F.ppl[i]=+p[7]; F.grupo[i]=+p[8];
     F.rango[i]=+p[9]; F.ecuador[i]=+p[10]; F.provincia[i]=+p[11]; F.pais[i]=+p[12];
-    F.insc[i]=+p[13]; F.edad[i]=+p[14]; F.persona[i]=+p[15];
+    F.nInsc[i]=+p[13];
   }
+
+  // Segunda tabla, agregada solo por periodo + sexo/discapacidad/ecuador (las
+  // únicas variables de persona que usan los 4 KPI institucionales de arriba).
+  // Al no cruzar con carrera/modalidad/sede, "personas únicas" es exacto ahí
+  // -- por eso esos 4 KPI solo reaccionan al filtro de Periodo.
+  const iRows = (typeof ROWS_INST !== "undefined" && ROWS_INST.length) ? ROWS_INST.split("\n") : [];
+  const NI = iRows.length;
+  const FI = {
+    periodo:new Int16Array(NI), sexo:new Int16Array(NI), disc:new Int16Array(NI), ecuador:new Int16Array(NI),
+    nInsc:new Int32Array(NI), nPersonas:new Int32Array(NI)
+  };
+  for (let i=0;i<NI;i++){
+    const p = iRows[i].split("|");
+    FI.periodo[i]=+p[0]; FI.sexo[i]=+p[1]; FI.disc[i]=+p[2]; FI.ecuador[i]=+p[3];
+    FI.nInsc[i]=+p[4]; FI.nPersonas[i]=+p[5];
+  }
+
+  // Personas con 2+ carreras distintas en el mismo periodo, un entero por
+  // periodo (mismo orden que DICTS.periodo) -- calculado en el pipeline de R
+  // con los microdatos reales, ya que el navegador nunca recibe id_persona.
+  const MULTI = (typeof MULTI_CARRERA !== "undefined") ? MULTI_CARRERA : [];
 
   const D = DICTS;
   const DEFAULT_PERIODO = D.periodo.length - 1; // most recent
@@ -89,68 +116,53 @@
 
   const INCONSISTENT_RANGO_IDX = D.rango.indexOf("Dato inconsistente");
 
-  // Deduplica por inscripcion_id: un mismo estudiante matriculado en varios periodos
-  // seleccionados debe contar una sola vez, no una vez por periodo.
-  // Devuelve Map(inscripcion_id -> row index representativo).
-  function dedupedRows(opts){
-    const rep = new Map();
+  // Suma nInsc de todas las filas (ya agregadas por combinación) que cumplen
+  // los filtros actuales -- ya no hace falta deduplicar por id: cada fila de
+  // ROWS_RAW es una combinación de dimensiones distinta, así que sumarlas
+  // nunca cuenta dos veces la misma inscripción real.
+  function sumRaw(opts){
+    let n = 0;
     for (let i=0;i<N;i++){
       if (!matches(i, opts)) continue;
-      rep.set(F.insc[i], i);
+      n += F.nInsc[i];
     }
-    return rep;
+    return n;
   }
 
   function aggregate(byField, opts){
-    // returns Map(dictIndex -> {n, edadSum, edadN}) - conteo de inscripciones únicas,
+    // returns Map(dictIndex -> {n}) - suma de inscripciones por valor de byField,
     // nunca se autofiltra por el campo que agrupa
     const o = Object.assign({}, opts, {skipField: byField});
-    const rep = dedupedRows(o);
     const m = new Map();
-    rep.forEach((i)=>{
+    for (let i=0;i<N;i++){
+      if (!matches(i, o)) continue;
       const key = byField ? F[byField][i] : 0;
       let cell = m.get(key);
-      if (!cell){ cell = {n:0, edadSum:0, edadN:0}; m.set(key, cell); }
-      cell.n += 1;
-      if (F.rango[i] !== INCONSISTENT_RANGO_IDX){ cell.edadSum += F.edad[i]; cell.edadN += 1; }
-    });
+      if (!cell){ cell = {n:0}; m.set(key, cell); }
+      cell.n += F.nInsc[i];
+    }
     return m;
   }
 
   function totalFor(opts){
-    const rep = dedupedRows(opts);
-    let edadSum=0, edadN=0;
-    rep.forEach((i)=>{
-      if (F.rango[i] !== INCONSISTENT_RANGO_IDX){ edadSum += F.edad[i]; edadN += 1; }
-    });
-    return {n: rep.size, edadSum, edadN};
+    return { n: sumRaw(opts) };
   }
 
-  // Deduplica por id_persona en vez de por inscripcion_id: para datos que
-  // describen a la PERSONA (grupo socioeconómico, etnia, discapacidad) y no
-  // cambian entre sus distintas matrículas, así alguien matriculado en 2
-  // carreras a la vez no se cuenta dos veces en esa misma categoría.
-  function dedupedPersonas(opts){
-    const rep = new Map();
-    for (let i=0;i<N;i++){
-      if (!matches(i, opts)) continue;
-      rep.set(F.persona[i], i);
+  // Filtra filas de la tabla institucional (ROWS_INST): solo periodo +
+  // cross-filters de sexo/disc/ecuador, que son las únicas dimensiones que
+  // esa tabla tiene. Un cross-filter de cualquier otro campo (carrera, rango,
+  // provincia, etc.) se ignora a propósito -- ROWS_INST no puede reflejarlo.
+  function matchesInst(i, opts){
+    opts = opts || {};
+    if (opts.periodoOverride !== undefined){
+      if (FI.periodo[i] !== opts.periodoOverride) return false;
+    } else if (state.periodo && !state.periodo.has(FI.periodo[i])){
+      return false;
     }
-    return rep;
-  }
-
-  function aggregateByPersona(byField, opts){
-    // returns Map(dictIndex -> {n}) - conteo de personas únicas
-    const o = Object.assign({}, opts, {skipField: byField});
-    const rep = dedupedPersonas(o);
-    const m = new Map();
-    rep.forEach((i)=>{
-      const key = byField ? F[byField][i] : 0;
-      let cell = m.get(key);
-      if (!cell){ cell = {n:0}; m.set(key, cell); }
-      cell.n += 1;
-    });
-    return m;
+    if (opts.skipField !== "sexo" && crossIdx("sexo") != null && FI.sexo[i] !== state.cross.sexo) return false;
+    if (opts.skipField !== "disc" && crossIdx("disc") != null && FI.disc[i] !== state.cross.disc) return false;
+    if (opts.skipField !== "ecuador" && crossIdx("ecuador") != null && FI.ecuador[i] !== state.cross.ecuador) return false;
+    return true;
   }
 
   /* ---------- Multi-select control ---------- */
@@ -482,26 +494,52 @@
   }
 
   /* ---------- Renderers ---------- */
+  // Sumar a través de varios periodos sobrestima (alguien matriculado en 3 de
+  // los 11 periodos se contaría 3 veces) -- así que, salvo Evolución (que
+  // muestra un punto por periodo, nunca los suma), todo el resto del
+  // dashboard exige exactamente un periodo seleccionado.
+  function singlePeriodSelected(){ return !!(state.periodo && state.periodo.size === 1); }
+  const PERIOD_BLOCK_MSG = "Selecciona un solo periodo para ver este gráfico";
+
   function renderKpis(){
-    const mIdx = D.sexo.indexOf("MUJER");
+    const alertEl = document.getElementById("kpiInstAlert");
+    if (!singlePeriodSelected()){
+      ["kpiInscripcionesValue","kpiDobleCarreraValue","kpiSexoMujeresValue",
+       "kpiSexoHombresValue","kpiDiscapacidadValue","kpiInternacionalValue"
+      ].forEach(id => document.getElementById(id).textContent = "0");
+      if (alertEl) alertEl.hidden = false;
+      return;
+    }
+    if (alertEl) alertEl.hidden = true;
 
-    // Un solo pase sobre las inscripciones ÚNICAS (deduplicadas) que cumplen los filtros actuales
-    const rep = dedupedRows();
-    const personaSet = new Set();
-    let mujeres=0, hombres=0, extranjero=0;
-    rep.forEach((i)=>{
-      personaSet.add(F.persona[i]);
-      if (F.sexo[i] === mIdx) mujeres++; else hombres++;
-      if (D.ecuador[F.ecuador[i]] === "Extranjero") extranjero++;
-    });
-    const cur = { n: rep.size };
-    const pctMujeres = cur.n ? 100*mujeres/cur.n : 0;
-    const pctExtranjero = cur.n ? 100*extranjero/cur.n : 0;
+    const mIdx = D.sexo.indexOf("MUJER"), hIdx = D.sexo.indexOf("HOMBRE");
+    const exIdx = D.ecuador.indexOf("Extranjero");
+    const sinDiscIdx = D.discapacidad.indexOf("SIN DISCAPACIDAD");
 
-    document.getElementById("kpiInscripcionesValue").textContent = fmt.format(cur.n);
-    document.getElementById("kpiPersonasValue").textContent = fmt.format(personaSet.size);
-    document.getElementById("kpiMujeresValue").textContent = fmt1(pctMujeres)+"%";
-    document.getElementById("kpiInternacionalValue").textContent = fmt1(pctExtranjero)+"%";
+    // Los KPI institucionales usan ROWS_INST (exacta para sexo/disc/ecuador
+    // por periodo) -- por eso solo reaccionan al filtro de Periodo y a
+    // cross-filters de sexo/disc/ecuador, no a Carrera/Modalidad/Sede.
+    let nInsc=0, nMujeres=0, nHombres=0, nConDisc=0, nExtranjero=0;
+    for (let i=0;i<NI;i++){
+      if (!matchesInst(i)) continue;
+      nInsc += FI.nInsc[i];
+      if (FI.sexo[i] === mIdx) nMujeres += FI.nPersonas[i];
+      else if (FI.sexo[i] === hIdx) nHombres += FI.nPersonas[i];
+      if (FI.disc[i] !== sinDiscIdx) nConDisc += FI.nPersonas[i];
+      if (FI.ecuador[i] === exIdx) nExtranjero += FI.nPersonas[i];
+    }
+
+    // MULTI_CARRERA es un entero por periodo -- con exactamente un periodo
+    // seleccionado, esto ya es exacto (sin riesgo de sobreconteo).
+    const periodoIdx = [...state.periodo][0];
+    const nDobleCarrera = MULTI[periodoIdx] || 0;
+
+    document.getElementById("kpiInscripcionesValue").textContent = fmt.format(nInsc);
+    document.getElementById("kpiDobleCarreraValue").textContent = fmt.format(nDobleCarrera);
+    document.getElementById("kpiSexoMujeresValue").textContent = fmt.format(nMujeres);
+    document.getElementById("kpiSexoHombresValue").textContent = fmt.format(nHombres);
+    document.getElementById("kpiDiscapacidadValue").textContent = fmt.format(nConDisc);
+    document.getElementById("kpiInternacionalValue").textContent = fmt.format(nExtranjero);
   }
 
   function periodoPointClick(p, idx){
@@ -523,6 +561,8 @@
   }
 
   function renderCarrera(){
+    const wrap = document.getElementById("chartCarrera"), note = document.getElementById("carreraNote");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; note.textContent = ""; return; }
     const agg = aggregate("carrera");
     const data = D.carrera.map((name,idx)=>({label:name, value:(agg.get(idx)||{n:0}).n, idx}))
       .filter(d=>d.value>0)
@@ -536,6 +576,8 @@
   }
 
   function renderModalidad(){
+    const wrap = document.getElementById("chartModalidad");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; return; }
     const agg = aggregate("modalidad");
     const data = D.modalidad.map((name,idx)=>({label:cap(name), value:(agg.get(idx)||{n:0}).n, idx})).sort((a,b)=>b.value-a.value);
     barChartH(document.getElementById("chartModalidad"), data, {
@@ -546,6 +588,8 @@
   }
 
   function renderSede(){
+    const wrap = document.getElementById("chartSede");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; return; }
     const agg = aggregate("sede");
     const data = D.sede.map((name,idx)=>({label:cap(name), value:(agg.get(idx)||{n:0}).n, idx})).sort((a,b)=>b.value-a.value);
     barChartH(document.getElementById("chartSede"), data, {
@@ -560,7 +604,9 @@
   const grupoOrder = ["BAJO","MEDIO BAJO","MEDIO TÍPICO","MEDIO ALTO","ALTO","SIN SOCIOECONOMICO"];
   const grupoDisplay = { "BAJO":"Bajo", "MEDIO BAJO":"Medio Bajo", "MEDIO TÍPICO":"Medio Típico", "MEDIO ALTO":"Medio Alto", "ALTO":"Alto", "SIN SOCIOECONOMICO":"Sin dato" };
   function renderGrupo(){
-    const agg = aggregateByPersona("grupo");
+    const wrap = document.getElementById("chartGrupo");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; return; }
+    const agg = aggregate("grupo");
     const data = grupoOrder.map(name=>{
       const idx = findIdxCI(D.grupo, name);
       return {label: grupoDisplay[name]||name, value: idx>=0 ? (agg.get(idx)||{n:0}).n : 0, idx};
@@ -573,7 +619,9 @@
   }
 
   function renderEtnia(){
-    const agg = aggregateByPersona("etnia");
+    const wrap = document.getElementById("chartEtnia");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; return; }
+    const agg = aggregate("etnia");
     const data = D.etnia.map((name,idx)=>({label:name, value:(agg.get(idx)||{n:0}).n, idx}))
       .filter(d=>d.value>0).sort((a,b)=>b.value-a.value);
     barChartH(document.getElementById("chartEtnia"), data, {
@@ -584,9 +632,11 @@
   }
 
   function renderDisc(){
-    const agg = aggregateByPersona("disc");
+    const wrap = document.getElementById("chartDisc"), note = document.getElementById("discNote");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; note.textContent = ""; return; }
+    const agg = aggregate("disc");
     const sinIdx = findIdxCI(D.discapacidad, "SIN DISCAPACIDAD");
-    const total = dedupedPersonas().size;
+    const total = sumRaw();
     const sinN = sinIdx>=0 ? (agg.get(sinIdx)||{n:0}).n : 0;
     document.getElementById("discNote").textContent =
       fmt1(total? 100*(total-sinN)/total : 0) + "% de las personas reportan alguna discapacidad";
@@ -620,17 +670,28 @@
     document.getElementById("sexStatM").addEventListener("click", ()=> setCross("sexo", mIdx));
   }
   function renderPyramid(){
+    if (!singlePeriodSelected()){
+      document.getElementById("chartPyramid").innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>';
+      document.getElementById("pyramidStats").innerHTML = "";
+      document.getElementById("pyramidNote").textContent = "";
+      return;
+    }
     const mIdx = D.sexo.indexOf("MUJER"), hIdx = D.sexo.indexOf("HOMBRE");
     const counts = {};
-    let inconsistentN = 0;
-    const rep = dedupedRows();
-    rep.forEach((i)=>{
-      if (F.rango[i] === INCONSISTENT_RANGO_IDX){ inconsistentN++; return; }
+    let inconsistentN = 0, inconsistentH = 0, inconsistentM = 0;
+    for (let i=0;i<N;i++){
+      if (!matches(i)) continue;
+      if (F.rango[i] === INCONSISTENT_RANGO_IDX){
+        inconsistentN += F.nInsc[i];
+        if (F.sexo[i] === hIdx) inconsistentH += F.nInsc[i];
+        else if (F.sexo[i] === mIdx) inconsistentM += F.nInsc[i];
+        continue;
+      }
       const rIdx = F.rango[i];
       if (!counts[rIdx]) counts[rIdx] = {h:0, m:0};
-      if (F.sexo[i] === hIdx) counts[rIdx].h++;
-      else if (F.sexo[i] === mIdx) counts[rIdx].m++;
-    });
+      if (F.sexo[i] === hIdx) counts[rIdx].h += F.nInsc[i];
+      else if (F.sexo[i] === mIdx) counts[rIdx].m += F.nInsc[i];
+    }
     const data = pyramidBands.map(name=>{
       const idx = D.rango.indexOf(name);
       const c = counts[idx] || {h:0, m:0};
@@ -640,7 +701,8 @@
     data.forEach(d=>{ hTotal+=d.h; mTotal+=d.m; });
     renderPyramidStats(hIdx, mIdx, hTotal, mTotal);
     document.getElementById("pyramidNote").textContent =
-      "Excluye " + fmt.format(inconsistentN) + " inscripción" + (inconsistentN===1?"":"es") + " con dato de edad inconsistente";
+      "Excluye " + fmt.format(inconsistentN) + " inscripción" + (inconsistentN===1?"":"es") + " con dato de edad inconsistente"
+      + " (" + fmt.format(inconsistentM) + " mujeres, " + fmt.format(inconsistentH) + " hombres)";
     pyramidChart(document.getElementById("chartPyramid"), data, {
       W: chartW("chartPyramid", 760), ariaLabel:"Estructura de la población por sexo y edad de ingreso",
       selectedIdx: crossIdx("rango"),
@@ -649,6 +711,8 @@
   }
 
   function renderEcuadorSplit(){
+    const wrap = document.getElementById("chartEcuador");
+    if (!singlePeriodSelected()){ wrap.innerHTML = '<div class="empty-state">'+PERIOD_BLOCK_MSG+'</div>'; return; }
     const agg = aggregate("ecuador");
     const ecIdx = D.ecuador.indexOf("Ecuador"), exIdx = D.ecuador.indexOf("Extranjero");
     const segs = [
@@ -678,18 +742,36 @@
   };
   let worldMapCounts = {}; // iso -> {name, n} del último render, usado por el tooltip
 
+  function clearMapPaths(svg){
+    if (!svg) return;
+    svg.querySelectorAll("path").forEach(p=>{
+      p.style.fill = ""; p.style.opacity = ""; p.style.stroke = ""; p.style.strokeWidth = "";
+      p.classList.remove("has-data");
+    });
+  }
+
   function renderWorldMap(){
-    const rep = dedupedRows();
+    const blockEl = document.getElementById("worldMapBlock");
+    const noteEl0 = document.getElementById("worldMapNote");
+    if (!singlePeriodSelected()){
+      worldMapCounts = {};
+      clearMapPaths(document.getElementById("worldMapSvg"));
+      if (noteEl0) noteEl0.textContent = "";
+      if (blockEl) blockEl.hidden = false;
+      return;
+    }
+    if (blockEl) blockEl.hidden = true;
     const counts = {};
     const ecuadorIdx = D.pais.indexOf("ECUADOR");
-    rep.forEach((i)=>{
+    for (let i=0;i<N;i++){
+      if (!matches(i)) continue;
       const idx = F.pais[i];
       const paisName = D.pais[idx];
       const iso = idx === ecuadorIdx ? "ECU" : PAIS_ISO[paisName];
-      if (!iso) return; // "No registra" o país sin polígono en el atlas
+      if (!iso) continue; // "No registra" o país sin polígono en el atlas
       if (!counts[iso]) counts[iso] = { name: idx === ecuadorIdx ? "Ecuador" : titleCase(paisName), n: 0, idx };
-      counts[iso].n += 1;
-    });
+      counts[iso].n += F.nInsc[i];
+    }
     worldMapCounts = counts;
 
     const sel = crossIdx("pais");
@@ -719,28 +801,6 @@
     if (noteEl) noteEl.textContent = foreignCount + " países, fuera de Ecuador · país más reciente por inscripción";
   }
 
-  // Siempre acotado a Ecuador (provincia no aplica a extranjeros) - ignora un cross-filter de "ecuador" activo.
-  // Compartido entre el gráfico de barras y el mapa de provincias.
-  function dedupedEcuadorRows(){
-    const ecIdx = D.ecuador.indexOf("Ecuador");
-    const rep = new Map(); // inscripcion_id -> row index, deduplicado
-    for (let i=0;i<N;i++){
-      if (state.periodo && !state.periodo.has(F.periodo[i])) continue;
-      if (F.ecuador[i] !== ecIdx) continue;
-      if (state.carrera && !state.carrera.has(F.carrera[i])) continue;
-      if (state.modalidad && !state.modalidad.has(F.modalidad[i])) continue;
-      if (state.sede && !state.sede.has(F.sede[i])) continue;
-      let skip = false;
-      for (const field in state.cross){
-        if (field === "provincia" || field === "ecuador") continue;
-        if (F[field][i] !== state.cross[field]) { skip = true; break; }
-      }
-      if (skip) continue;
-      rep.set(F.insc[i], i);
-    }
-    return rep;
-  }
-
   // Nombre (tal como aparece en los datos) -> codigo iso_2, para colorear el mapa de provincias
   const PROVINCIA_ISO = {
     "GUAYAS":"EC-G", "LOS RIOS":"EC-R", "PICHINCHA":"EC-P", "CAÑAR":"EC-F",
@@ -753,16 +813,37 @@
   let ecuadorMapCounts = {};
 
   function renderEcuadorMap(){
-    const rep = dedupedEcuadorRows();
+    const blockEl = document.getElementById("ecuadorMapBlock");
+    if (!singlePeriodSelected()){
+      ecuadorMapCounts = {};
+      clearMapPaths(document.getElementById("ecuadorMapSvg"));
+      if (blockEl) blockEl.hidden = false;
+      return;
+    }
+    if (blockEl) blockEl.hidden = true;
+    // Siempre acotado a Ecuador (provincia no aplica a extranjeros) - ignora
+    // un cross-filter de "ecuador" activo.
+    const ecIdx = D.ecuador.indexOf("Ecuador");
     const counts = {};
-    rep.forEach((i)=>{
+    for (let i=0;i<N;i++){
+      if (state.periodo && !state.periodo.has(F.periodo[i])) continue;
+      if (F.ecuador[i] !== ecIdx) continue;
+      if (state.carrera && !state.carrera.has(F.carrera[i])) continue;
+      if (state.modalidad && !state.modalidad.has(F.modalidad[i])) continue;
+      if (state.sede && !state.sede.has(F.sede[i])) continue;
+      let skip = false;
+      for (const field in state.cross){
+        if (field === "provincia" || field === "ecuador") continue;
+        if (F[field][i] !== state.cross[field]) { skip = true; break; }
+      }
+      if (skip) continue;
       const idx = F.provincia[i];
       const provName = D.provincia[idx];
       const iso = PROVINCIA_ISO[provName];
-      if (!iso) return; // "No registra"
+      if (!iso) continue; // "No registra"
       if (!counts[iso]) counts[iso] = { name: titleCase(provName), n: 0, idx };
-      counts[iso].n += 1;
-    });
+      counts[iso].n += F.nInsc[i];
+    }
     ecuadorMapCounts = counts;
     const sel = crossIdx("provincia");
     const svg = document.getElementById("ecuadorMapSvg");
@@ -817,9 +898,87 @@
     renderEcuadorMap();
   }
 
+  /* ---------- Zoom/pan de mapas: rueda para zoom (centrado en el cursor),
+     arrastrar para desplazar. Un arrastre real marca svg.dataset.justDragged
+     para que el "click" de filtrado (más abajo) lo ignore -- así un clic
+     simple sigue filtrando por país/provincia como antes. */
+  function wireMapZoom(svg, wrapId){
+    if (!svg) return;
+    const wrap = document.getElementById(wrapId);
+    const vb = svg.viewBox.baseVal;
+    const base = { x: vb.x, y: vb.y, w: vb.width, h: vb.height };
+    let vx = base.x, vy = base.y, vw = base.w, vh = base.h;
+    const MIN_W = base.w * 0.12;
+
+    const resetBtn = document.createElement("button");
+    resetBtn.type = "button";
+    resetBtn.className = "map-reset-zoom";
+    resetBtn.textContent = "Restablecer zoom";
+    resetBtn.hidden = true;
+    wrap.appendChild(resetBtn);
+
+    function apply(){
+      svg.setAttribute("viewBox", vx+" "+vy+" "+vw+" "+vh);
+      resetBtn.hidden = vw >= base.w - 0.01;
+    }
+    function reset(){ vx=base.x; vy=base.y; vw=base.w; vh=base.h; apply(); }
+    resetBtn.addEventListener("click", (e)=>{ e.stopPropagation(); reset(); });
+
+    svg.addEventListener("wheel", (e)=>{
+      e.preventDefault();
+      const rect = svg.getBoundingClientRect();
+      const px = e.clientX - rect.left, py = e.clientY - rect.top;
+      const mx = vx + (px/rect.width) * vw;
+      const my = vy + (py/rect.height) * vh;
+      const factor = e.deltaY < 0 ? 0.85 : 1/0.85;
+      const newW = Math.min(base.w, Math.max(MIN_W, vw * factor));
+      const newH = newW * (base.h/base.w);
+      vx = mx - (px/rect.width) * newW;
+      vy = my - (py/rect.height) * newH;
+      vw = newW; vh = newH;
+      apply();
+    }, { passive:false });
+
+    let dragging=false, moved=false, lastX=0, lastY=0, pointerId=null;
+    svg.addEventListener("pointerdown", (e)=>{
+      if (e.button !== 0) return;
+      dragging = true; moved = false;
+      lastX = e.clientX; lastY = e.clientY;
+      pointerId = e.pointerId;
+      // OJO: no capturar el puntero aquí todavía. setPointerCapture hace que
+      // Chrome retargete el "click" resultante al propio <svg> en vez del
+      // <path> real bajo el cursor, así que un clic simple (sin arrastre)
+      // dejaría de encontrar el país/provincia clickeado. Solo se captura
+      // más abajo, una vez confirmado un arrastre real.
+    });
+    svg.addEventListener("pointermove", (e)=>{
+      if (!dragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      if (!moved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)){
+        moved = true;
+        try { svg.setPointerCapture(pointerId); } catch(err){}
+      }
+      if (!moved) return;
+      const rect = svg.getBoundingClientRect();
+      vx -= dx / rect.width * vw;
+      vy -= dy / rect.height * vh;
+      lastX = e.clientX; lastY = e.clientY;
+      apply();
+      hideTip();
+    });
+    function endDrag(){
+      dragging = false;
+      svg.dataset.justDragged = moved ? "1" : "";
+    }
+    svg.addEventListener("pointerup", endDrag);
+    svg.addEventListener("pointercancel", endDrag);
+    svg.addEventListener("dblclick", (e)=>{ e.stopPropagation(); reset(); });
+  }
+
   /* ---------- Wire controls ---------- */
   const worldMapSvg = document.getElementById("worldMapSvg");
   if (worldMapSvg) {
+    wireMapZoom(worldMapSvg, "worldMapWrap");
     worldMapSvg.addEventListener("mousemove", (e)=>{
       const path = e.target.closest("path");
       const iso = path && path.id ? path.id.slice(2) : null;
@@ -829,6 +988,7 @@
     });
     worldMapSvg.addEventListener("mouseleave", hideTip);
     worldMapSvg.addEventListener("click", (e)=>{
+      if (worldMapSvg.dataset.justDragged === "1"){ worldMapSvg.dataset.justDragged = ""; return; }
       const path = e.target.closest("path");
       const iso = path && path.id ? path.id.slice(2) : null;
       const c = iso ? worldMapCounts[iso] : null;
@@ -840,6 +1000,7 @@
 
   const ecuadorMapSvg = document.getElementById("ecuadorMapSvg");
   if (ecuadorMapSvg) {
+    wireMapZoom(ecuadorMapSvg, "ecuadorMapWrap");
     ecuadorMapSvg.addEventListener("mousemove", (e)=>{
       const path = e.target.closest("path");
       const iso = path && path.id ? path.id.slice(2) : null;
@@ -849,6 +1010,7 @@
     });
     ecuadorMapSvg.addEventListener("mouseleave", hideTip);
     ecuadorMapSvg.addEventListener("click", (e)=>{
+      if (ecuadorMapSvg.dataset.justDragged === "1"){ ecuadorMapSvg.dataset.justDragged = ""; return; }
       const path = e.target.closest("path");
       const iso = path && path.id ? path.id.slice(2) : null;
       const c = iso ? ecuadorMapCounts[iso] : null;
@@ -885,10 +1047,32 @@
     });
     el.addEventListener("blur", hideTip);
   }
-  wireInfoIcon("kpiInscripcionesInfo", "Se diferencia de Personas únicas porque un estudiante puede cursar una o más carreras a la vez.");
-  wireInfoIcon("grupoInfo", "Se cuenta por personas únicas, no por inscripciones: si alguien está matriculado en más de una carrera, se cuenta una sola vez aquí.");
-  wireInfoIcon("etniaInfo", "Se cuenta por personas únicas, no por inscripciones: si alguien está matriculado en más de una carrera, se cuenta una sola vez aquí.");
-  wireInfoIcon("discInfo", "Se cuenta por personas únicas, no por inscripciones: si alguien está matriculado en más de una carrera, se cuenta una sola vez aquí.");
+  // "Reacciona solo a Periodo" aplica a los 5 KPI institucionales por igual
+  // (todos vienen de ROWS_INST), pero el POR QUÉ es distinto para Inscripciones
+  // -- que nunca pretende ser un conteo de personas -- que para los otros 4,
+  // que sí lo son y por eso necesitan la ventana de un solo periodo para ser exactos.
+  const kpiPeriodoOnlyNote = " Solo reacciona al filtro de Periodo (no a Carrera/Modalidad/Sede), igual que el resto de los indicadores institucionales.";
+  const kpiInstNote = " Solo reacciona al filtro de Periodo (no a Carrera/Modalidad/Sede), para que el conteo de personas únicas sea siempre exacto.";
+  wireInfoIcon("kpiInscripcionesInfo", "Cuenta cada matrícula: un estudiante en más de una carrera se cuenta varias veces aquí, a diferencia de Mujeres/Hombres (personas únicas)." + kpiPeriodoOnlyNote);
+  wireInfoIcon("kpiDobleCarreraInfo", "Personas matriculadas en 2 o más carreras distintas a la vez dentro del periodo seleccionado. Solo cuenta carreras de esta facultad -- si alguien tiene una segunda carrera en otra facultad de la universidad, esos datos no están en este dashboard." + kpiInstNote);
+  wireInfoIcon("kpiSexoInfo", "Personas únicas por sexo, sin importar en cuántas carreras estén matriculadas a la vez." + kpiInstNote);
+  wireInfoIcon("kpiDiscapacidadInfo", "Personas únicas que reportan algún tipo de discapacidad." + kpiInstNote);
+  wireInfoIcon("kpiInternacionalInfo", "Personas únicas con país de origen distinto a Ecuador." + kpiInstNote);
+
+  // Estos gráficos cuentan inscripciones (como Inscripciones únicas arriba),
+  // no personas -- aunque el título diga "estudiantes" o "población". Alguien
+  // matriculado en 2 carreras a la vez puede aparecer 2 veces.
+  const inscOverlapNote = " Cuenta inscripciones, no personas -- un estudiante matriculado en 2 carreras a la vez puede aparecer 2 veces aquí.";
+  wireInfoIcon("grupoInfo", "Personas por grupo socioeconómico." + inscOverlapNote);
+  wireInfoIcon("etniaInfo", "Personas por autoidentificación étnica." + inscOverlapNote);
+  wireInfoIcon("discInfo", "Personas por tipo de discapacidad reportado." + inscOverlapNote);
+  wireInfoIcon("pyramidInfo", "Estructura por sexo y edad de ingreso a la carrera." + inscOverlapNote + " Además excluye las inscripciones con edad inconsistente (ver nota abajo) -- por ambas razones, el total no va a coincidir con Mujeres/Hombres arriba.");
+  wireInfoIcon("ecuadorSplitInfo", "Distribución de inscripciones entre Ecuador y el extranjero." + inscOverlapNote);
+  wireInfoIcon("worldMapInfo", "País de origen más reciente por inscripción." + inscOverlapNote);
+  wireInfoIcon("ecuadorMapInfo", "Provincia de origen más reciente por inscripción, solo estudiantes de Ecuador." + inscOverlapNote);
+  wireInfoIcon("carreraInfo", "Inscripciones por carrera." + inscOverlapNote);
+  wireInfoIcon("modsedeInfo", "Inscripciones por modalidad y por sede." + inscOverlapNote);
+  wireInfoIcon("trendInfo", "El único gráfico que no exige un solo periodo: siempre muestra la evolución completa, sin importar cuántos periodos tengas seleccionados." + inscOverlapNote);
 
   /* ---------- Editor de diseño: lienzo de posición libre ----------
      Cada tarjeta es position:absolute con left/top/width/height propios, sin
@@ -944,7 +1128,8 @@
     const gap = 14;
     const widthPx = { "100%": containerW, "50%": (containerW-gap)/2, "33%": (containerW-2*gap)/3, "25%": (containerW-3*gap)/4 };
     const heightPx = {
-      kpiInscripciones:110, kpiPersonas:110, kpiMujeres:110, kpiInternacional:110,
+      tituloIndicadores:36, tituloGraficos:36,
+      kpiInscripciones:110, kpiDobleCarrera:110, kpiSexo:110, kpiDiscapacidad:110, kpiInternacional:110,
       pyramid:300, grupo:260, etnia:260, disc:260, trend:320, modsede:300,
       carrera:460, ecuadorsplit:130, worldmap:420, ecuadormap:420
     };
@@ -970,20 +1155,23 @@
   // automático de computeDefaultLayout, que sigue sirviendo de respaldo por si
   // en el futuro se agrega una tarjeta que todavía no tiene posición fija aquí.
   const DEFAULT_POSITIONS = {
-    kpiInscripciones:  { left:"0px",   top:"0px",       width:"227px", height:"139px" },
-    kpiPersonas:       { left:"236px", top:"0px",       width:"228px", height:"141px" },
-    kpiMujeres:        { left:"473px", top:"0px",       width:"225px", height:"139px" },
-    kpiInternacional:  { left:"710px", top:"0px",       width:"222px", height:"142px" },
-    trend:             { left:"3px",   top:"152px",     width:"408px", height:"283px" },
-    modsede:           { left:"431px", top:"151px",     width:"498px", height:"285px" },
-    carrera:           { left:"8px",   top:"451px",     width:"919px", height:"312px" },
-    etnia:             { left:"344px", top:"776px",     width:"305px", height:"253px" },
-    grupo:             { left:"662px", top:"778px",     width:"264px", height:"252px" },
-    pyramid:           { left:"14px",  top:"781px",     width:"319px", height:"416px" },
-    disc:              { left:"342px", top:"1042px",    width:"585px", height:"158px" },
-    ecuadorsplit:      { left:"6px",   top:"1220px",    width:"917px", height:"125px" },
-    worldmap:          { left:"5px",   top:"1366px",    width:"519px", height:"328px" },
-    ecuadormap:        { left:"533px", top:"1369.67px", width:"394px", height:"318px" }
+    tituloIndicadores: { left:"15px",      top:"0px",       width:"1118px", height:"32px" },
+    kpiInscripciones:  { left:"22px",      top:"31px",      width:"272px",  height:"166px" },
+    kpiDobleCarrera:   { left:"644px",     top:"38px",      width:"275px",  height:"158px" },
+    kpiSexo:           { left:"327px",     top:"33px",      width:"279px",  height:"162px" },
+    kpiDiscapacidad:   { left:"955px",     top:"39px",      width:"279px",  height:"156px" },
+    kpiInternacional:  { left:"1276px",    top:"38px",      width:"257px",  height:"160px" },
+    tituloGraficos:    { left:"17px",      top:"202px",     width:"1118px", height:"32px" },
+    trend:             { left:"22px",      top:"255px",     width:"405px",  height:"248px" },
+    modsede:           { left:"444.953px", top:"250.969px", width:"351px",  height:"250px" },
+    carrera:           { left:"809.953px", top:"245.953px", width:"723px",  height:"252px" },
+    etnia:             { left:"352.984px", top:"513.984px", width:"302px",  height:"251px" },
+    grupo:             { left:"664.984px", top:"514.984px", width:"280px",  height:"248px" },
+    pyramid:           { left:"21px",      top:"517.953px", width:"313px",  height:"472px" },
+    disc:              { left:"352.984px", top:"778.984px", width:"584px",  height:"209px" },
+    ecuadorsplit:      { left:"958.969px", top:"512.969px", width:"585px",  height:"141px" },
+    worldmap:          { left:"958px",     top:"661.969px", width:"298px",  height:"329px" },
+    ecuadormap:        { left:"1266.98px", top:"665.203px", width:"282px",  height:"332px" }
   };
   function applyDefaultPositions(){
     Object.entries(DEFAULT_POSITIONS).forEach(([id,pos])=>{
