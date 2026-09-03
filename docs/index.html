@@ -9,6 +9,12 @@
 <body>
 <div class="loading-veil" id="loadingVeil"><div class="dot"></div>Cargando datos&hellip;</div>
 
+<div class="top-tabs" role="tablist" aria-label="Vistas del dashboard">
+  <button type="button" class="top-tab on" data-view="perfil" role="tab" aria-selected="true">Perfil Estudiantil</button>
+  <button type="button" class="top-tab" data-view="rendimiento" role="tab" aria-selected="false">Rendimiento Académico</button>
+</div>
+
+<div class="view-panel" id="view-perfil">
 <div class="app" id="app" style="visibility:hidden">
   <aside class="sidebar">
     <div class="brand">
@@ -257,9 +263,15 @@
     </div>
   </main>
 </div>
+</div>
+
+<div class="view-panel" id="view-rendimiento" hidden>
+  <iframe id="rendimientoFrame" class="rendimiento-frame" data-src="rendimiento_academico.html" title="Dashboard Rendimiento Académico"></iframe>
+</div>
 
 <div class="tooltip" id="tooltip"></div>
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="nav.js"></script>
 </body>
 </html>
