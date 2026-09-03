@@ -89,8 +89,8 @@
   a { color: inherit; }
 
   .app {
-    display: grid;
-    grid-template-columns: 272px 1fr;
+    display: flex;
+    flex-direction: column;
     min-height: calc(100vh - var(--topnav-h));
   }
 
@@ -133,45 +133,32 @@
     border: 0;
   }
 
-  /* ---------- Sidebar ---------- */
-  .sidebar {
+  /* ---------- Barra de filtros ---------- */
+  .filterbar {
     background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 14px 22px 28px;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 36px;
     display: flex;
-    flex-direction: column;
-    gap: 28px;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
     position: sticky;
     top: var(--topnav-h);
-    height: calc(100vh - var(--topnav-h));
-    overflow-y: auto;
+    z-index: 30;
   }
-  .brand {
+  .filterbar-fields {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex: 1;
   }
-  .brand h1 {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 600;
-    line-height: 1.15;
-    margin: 0;
-    text-wrap: balance;
-  }
-
-  .filter-group {
+  .filterbar-fields .field { width: 200px; flex: none; }
+  .filterbar-actions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .filter-group h2 {
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    font-weight: 600;
-    margin: 0;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-left: auto;
   }
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label {
@@ -280,17 +267,9 @@
   }
   .reset-link:hover { color: var(--ink); border-color: var(--ink-muted); }
 
-  /* Editor de diseño, al pie de la barra lateral -- apilado, no en fila,
-     porque el sidebar es angosto (272px). */
-  .sidebar .dash-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-  .sidebar .dash-toolbar .btn-editor { justify-content: center; }
-  .sidebar .dash-toolbar-hint { text-align: center; }
+  /* En la barra de filtros, el hint del editor pasa a su propia línea
+     para no forzar el ancho de la fila cuando aparece. */
+  .filterbar .dash-toolbar-hint { flex-basis: 100%; }
 
   /* ---------- Main ---------- */
   .main {
@@ -547,9 +526,9 @@
   }
   body.edit-mode .card-head:active { cursor: grabbing; }
 
-  @media (max-width: 1180px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { position: relative; height: auto; }
+  @media (max-width: 900px) {
+    .filterbar { flex-direction: column; align-items: stretch; }
+    .filterbar-actions { margin-left: 0; justify-content: space-between; }
   }
 
   /* ---------- Chart primitives ---------- */
