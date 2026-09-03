@@ -70,25 +70,24 @@
     </div>
 
     <button class="reset-link" id="resetBtn" type="button">Restablecer filtros</button>
+
+    <div class="dash-toolbar">
+      <button type="button" class="btn-editor primary small" id="btnEditToggle">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        <span>Editar diseño</span>
+      </button>
+      <button type="button" class="btn-editor small" id="btnExport" hidden>Exportar diseño</button>
+      <button type="button" class="btn-editor small" id="btnResetLayout" hidden>Restablecer diseño</button>
+      <span class="dash-toolbar-hint" id="editHint" hidden>Arrastra una tarjeta por su encabezado para moverla a cualquier posición &middot; arrastra su esquina inferior derecha para cambiar ancho y alto</span>
+    </div>
   </aside>
 
   <main class="main">
     <div class="page-head">
-      <h2>Población</h2>
       <div class="head-right">
         <span id="crossChip"></span>
         <span class="period-tag" id="periodTag">&mdash;</span>
       </div>
-    </div>
-
-    <div class="dash-toolbar">
-      <button type="button" class="btn-editor primary" id="btnEditToggle">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-        <span>Editar diseño</span>
-      </button>
-      <button type="button" class="btn-editor" id="btnExport" hidden>Exportar diseño</button>
-      <button type="button" class="btn-editor" id="btnResetLayout" hidden>Restablecer diseño</button>
-      <span class="dash-toolbar-hint" id="editHint" hidden>Arrastra una tarjeta por su encabezado para moverla a cualquier posición &middot; arrastra su esquina inferior derecha para cambiar ancho y alto</span>
     </div>
 
     <div class="dash-grid-outer">
