@@ -9,9 +9,15 @@
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".top-tab"));
   var panels = {
     perfil: document.getElementById("view-perfil"),
-    rendimiento: document.getElementById("view-rendimiento")
+    rendimiento: document.getElementById("view-rendimiento"),
+    graduados: document.getElementById("view-graduados")
   };
-  var frame = document.getElementById("rendimientoFrame");
+  // Cada vista independiente vive en su propio iframe y se carga sólo la primera
+  // vez que se abre: ninguna paga el coste de arrancar hasta que se la pide.
+  var frames = {
+    rendimiento: document.getElementById("rendimientoFrame"),
+    graduados: document.getElementById("graduadosFrame")
+  };
 
   function activate(view) {
     tabs.forEach(function (btn) {
@@ -22,7 +28,8 @@
     Object.keys(panels).forEach(function (key) {
       if (panels[key]) panels[key].hidden = key !== view;
     });
-    if (view === "rendimiento" && frame && !frame.getAttribute("src")) {
+    var frame = frames[view];
+    if (frame && !frame.getAttribute("src")) {
       frame.setAttribute("src", frame.getAttribute("data-src"));
     }
   }

@@ -12,6 +12,7 @@
 <div class="top-tabs" role="tablist" aria-label="Vistas del dashboard">
   <button type="button" class="top-tab on" data-view="perfil" role="tab" aria-selected="true">Perfil Estudiantil</button>
   <button type="button" class="top-tab" data-view="rendimiento" role="tab" aria-selected="false">Rendimiento Académico</button>
+  <button type="button" class="top-tab" data-view="graduados" role="tab" aria-selected="false">Seguimiento a Graduados</button>
 </div>
 
 <div class="view-panel" id="view-perfil">
@@ -345,6 +346,10 @@
 
 <div class="view-panel" id="view-rendimiento" hidden>
   <iframe id="rendimientoFrame" class="rendimiento-frame" data-src="rendimiento_academico.html" title="Dashboard Rendimiento Académico"></iframe>
+</div>
+
+<div class="view-panel" id="view-graduados" hidden>
+  <iframe id="graduadosFrame" class="rendimiento-frame" data-src="seguimiento_graduados.html" title="Dashboard Seguimiento a Graduados"></iframe>
 </div>
 
 <div class="tooltip" id="tooltip"></div>

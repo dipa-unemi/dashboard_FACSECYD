@@ -25,3 +25,6 @@ desktop.ini
 
 # Datos fuente (privados, no deben estar en el repo público)
 data/
+
+# Tablas intermedias con datos personales (salida de scripts/01_depurar_graduados.py)
+build/
