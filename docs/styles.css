@@ -152,7 +152,7 @@
     flex-wrap: wrap;
     flex: 1;
   }
-  .filterbar-fields .field { width: 200px; flex: none; }
+  .filterbar-fields .field { flex: 1 1 160px; max-width: 320px; }
   .filterbar-actions {
     display: flex;
     align-items: center;
@@ -287,6 +287,30 @@
     gap: 20px;
     flex-wrap: wrap;
   }
+
+  /* Pestañas internas de Perfil Estudiantil: Académico / Sociodemográfico.
+     Los indicadores institucionales quedan arriba, fuera de ambas. */
+  .subtabs {
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .subtab {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    padding: 9px 2px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+  }
+  .subtab:hover { color: var(--ink); }
+  .subtab.on { color: var(--ink); border-bottom-color: var(--accent); }
   .page-head .head-right {
     display: flex;
     align-items: center;
@@ -394,6 +418,14 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
   }
+  .kpi .value-pct {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    margin-top: 3px;
+  }
   .kpi .value-split {
     display: flex;
     align-items: center;
@@ -422,6 +454,12 @@
     font-variant-numeric: tabular-nums;
     color: var(--ink);
     line-height: 1.1;
+  }
+  .kpi .value-item-pct {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
   }
   .kpi .value-item-label {
     font-size: 11px;

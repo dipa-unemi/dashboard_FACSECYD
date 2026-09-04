@@ -83,7 +83,7 @@
     </div>
 
     <div class="dash-grid-outer">
-    <div class="dash-grid" id="dashGrid">
+    <div class="dash-grid" id="kpiGrid">
       <section class="dcard section-title" data-id="tituloIndicadores" data-w="100%">
         <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
         <h2>Indicadores institucionales</h2>
@@ -112,6 +112,7 @@
           </span>
         </span>
         <span class="value" id="kpiDobleCarreraValue">&mdash;</span>
+        <span class="value-pct" id="kpiDobleCarreraPct"></span>
       </section>
 
       <section class="dcard kpi" data-id="kpiSexo" data-w="50%">
@@ -128,6 +129,7 @@
             <span class="value-dot" style="background:var(--s1)"></span>
             <span class="value-item-text">
               <span class="value-item-num" id="kpiSexoMujeresValue">&mdash;</span>
+              <span class="value-item-pct" id="kpiSexoMujeresPct"></span>
               <span class="value-item-label">Mujeres</span>
             </span>
           </span>
@@ -135,6 +137,7 @@
             <span class="value-dot" style="background:var(--s2)"></span>
             <span class="value-item-text">
               <span class="value-item-num" id="kpiSexoHombresValue">&mdash;</span>
+              <span class="value-item-pct" id="kpiSexoHombresPct"></span>
               <span class="value-item-label">Hombres</span>
             </span>
           </span>
@@ -151,6 +154,7 @@
           </span>
         </span>
         <span class="value" id="kpiDiscapacidadValue">&mdash;</span>
+        <span class="value-pct" id="kpiDiscapacidadPct"></span>
       </section>
 
       <section class="dcard kpi" data-id="kpiInternacional" data-w="25%">
@@ -163,13 +167,62 @@
           </span>
         </span>
         <span class="value" id="kpiInternacionalValue">&mdash;</span>
+        <span class="value-pct" id="kpiInternacionalPct"></span>
+      </section>
+    </div>
+    </div>
+
+    <nav class="subtabs">
+      <button type="button" class="subtab on" data-target="panel-academico">Académico</button>
+      <button type="button" class="subtab" data-target="panel-socio">Sociodemográfico</button>
+    </nav>
+
+    <div class="section-panel" id="panel-academico">
+    <div class="dash-grid-outer">
+    <div class="dash-grid" id="dashGrid-academico">
+      <section class="card dcard" data-id="trend" data-w="50%">
+        <div class="card-head">
+          <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
+          <h3>Evolución de inscripciones por periodo</h3>
+          <span class="info-icon" id="trendInfo" tabindex="0" role="button" aria-label="Cómo se cuenta este gráfico">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16.5"/><circle cx="12" cy="7.5" r="0.25" fill="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="note">Independiente del filtro de periodo</span>
+        </div>
+        <div class="chart-wrap" id="chartTrend"></div>
       </section>
 
-      <section class="dcard section-title" data-id="tituloGraficos" data-w="100%">
-        <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
-        <h2>Desglose por variable</h2>
+      <section class="card dcard" data-id="modsede" data-w="50%">
+        <div class="card-head">
+          <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
+          <h3>Modalidad</h3>
+          <span class="info-icon" id="modsedeInfo" tabindex="0" role="button" aria-label="Cómo se cuentan estos gráficos">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16.5"/><circle cx="12" cy="7.5" r="0.25" fill="currentColor" stroke-width="1.5"/></svg>
+          </span>
+        </div>
+        <div class="chart-wrap" id="chartModalidad"></div>
+        <div class="card-head" style="margin-top:18px;"><h3>Sede</h3></div>
+        <div class="chart-wrap" id="chartSede"></div>
       </section>
 
+      <section class="card dcard" data-id="carrera" data-w="100%">
+        <div class="card-head">
+          <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
+          <h3>Inscripciones por carrera</h3>
+          <span class="info-icon" id="carreraInfo" tabindex="0" role="button" aria-label="Cómo se cuenta este gráfico">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16.5"/><circle cx="12" cy="7.5" r="0.25" fill="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="note" id="carreraNote"></span>
+        </div>
+        <div class="chart-wrap" id="chartCarrera"></div>
+      </section>
+    </div>
+    </div>
+    </div>
+
+    <div class="section-panel" id="panel-socio" hidden>
+    <div class="dash-grid-outer">
+    <div class="dash-grid" id="dashGrid-socio">
       <section class="card dcard" data-id="pyramid" data-w="100%">
         <div class="card-head">
           <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
@@ -215,43 +268,6 @@
           <span class="note" id="discNote"></span>
         </div>
         <div class="chart-wrap" id="chartDisc"></div>
-      </section>
-
-      <section class="card dcard" data-id="trend" data-w="50%">
-        <div class="card-head">
-          <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
-          <h3>Evolución de inscripciones por periodo</h3>
-          <span class="info-icon" id="trendInfo" tabindex="0" role="button" aria-label="Cómo se cuenta este gráfico">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16.5"/><circle cx="12" cy="7.5" r="0.25" fill="currentColor" stroke-width="1.5"/></svg>
-          </span>
-          <span class="note">Independiente del filtro de periodo</span>
-        </div>
-        <div class="chart-wrap" id="chartTrend"></div>
-      </section>
-
-      <section class="card dcard" data-id="modsede" data-w="50%">
-        <div class="card-head">
-          <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
-          <h3>Modalidad</h3>
-          <span class="info-icon" id="modsedeInfo" tabindex="0" role="button" aria-label="Cómo se cuentan estos gráficos">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16.5"/><circle cx="12" cy="7.5" r="0.25" fill="currentColor" stroke-width="1.5"/></svg>
-          </span>
-        </div>
-        <div class="chart-wrap" id="chartModalidad"></div>
-        <div class="card-head" style="margin-top:18px;"><h3>Sede</h3></div>
-        <div class="chart-wrap" id="chartSede"></div>
-      </section>
-
-      <section class="card dcard" data-id="carrera" data-w="100%">
-        <div class="card-head">
-          <span class="drag-handle" title="Mover">&#8942;&#8942;</span>
-          <h3>Inscripciones por carrera</h3>
-          <span class="info-icon" id="carreraInfo" tabindex="0" role="button" aria-label="Cómo se cuenta este gráfico">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10.5" x2="12" y2="16.5"/><circle cx="12" cy="7.5" r="0.25" fill="currentColor" stroke-width="1.5"/></svg>
-          </span>
-          <span class="note" id="carreraNote"></span>
-        </div>
-        <div class="chart-wrap" id="chartCarrera"></div>
       </section>
 
       <section class="card dcard" data-id="ecuadorsplit" data-w="100%">
@@ -308,6 +324,7 @@
           <span class="legend-item"><span class="legend-swatch" style="background:var(--seq-650)"></span>5.000+</span>
         </div>
       </section>
+    </div>
     </div>
     </div>
 

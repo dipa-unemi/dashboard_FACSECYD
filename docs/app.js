@@ -95,6 +95,7 @@
 
   const fmt = new Intl.NumberFormat("es-EC");
   const fmt1 = (x)=> (Math.round(x*10)/10).toLocaleString("es-EC",{minimumFractionDigits:1,maximumFractionDigits:1});
+  const fmt2 = (x)=> (Math.round(x*100)/100).toLocaleString("es-EC",{minimumFractionDigits:2,maximumFractionDigits:2});
 
   /* ---------- Filtering helpers ---------- */
   function matches(i, opts){
@@ -507,6 +508,9 @@
       ["kpiInscripcionesValue","kpiDobleCarreraValue","kpiSexoMujeresValue",
        "kpiSexoHombresValue","kpiDiscapacidadValue","kpiInternacionalValue"
       ].forEach(id => document.getElementById(id).textContent = "0");
+      ["kpiDobleCarreraPct","kpiSexoMujeresPct","kpiSexoHombresPct",
+       "kpiDiscapacidadPct","kpiInternacionalPct"
+      ].forEach(id => document.getElementById(id).textContent = "");
       if (alertEl) alertEl.hidden = false;
       return;
     }
@@ -540,6 +544,22 @@
     document.getElementById("kpiSexoHombresValue").textContent = fmt.format(nHombres);
     document.getElementById("kpiDiscapacidadValue").textContent = fmt.format(nConDisc);
     document.getElementById("kpiInternacionalValue").textContent = fmt.format(nExtranjero);
+
+    // Porcentajes sobre el total de personas únicas del periodo (Mujeres +
+    // Hombres, la misma base que ya se ve en el KPI de sexo) -- no sobre
+    // Inscripciones únicas, que cuenta matrículas, no personas. Mujeres/Hombres
+    // son porciones grandes (redondean bien a 1 decimal, como en la pirámide);
+    // Doble carrera/Discapacidad/Internacional son porciones chicas donde 1
+    // decimal confunde valores distintos (ej. 434 y 413 sobre ~22k redondean
+    // ambos a "1,9%") -- por eso usan 2 decimales.
+    const nPersonasTotal = nMujeres + nHombres;
+    const pct1 = (n)=> nPersonasTotal ? fmt1(100*n/nPersonasTotal)+"%" : "—";
+    const pct2 = (n)=> nPersonasTotal ? fmt2(100*n/nPersonasTotal)+"%" : "—";
+    document.getElementById("kpiDobleCarreraPct").textContent = pct2(nDobleCarrera)+" de personas únicas";
+    document.getElementById("kpiSexoMujeresPct").textContent = pct1(nMujeres);
+    document.getElementById("kpiSexoHombresPct").textContent = pct1(nHombres);
+    document.getElementById("kpiDiscapacidadPct").textContent = pct2(nConDisc)+" de personas únicas";
+    document.getElementById("kpiInternacionalPct").textContent = pct2(nExtranjero)+" de personas únicas";
   }
 
   function periodoPointClick(p, idx){
@@ -1076,77 +1096,141 @@
 
   /* ---------- Editor de diseño: lienzo de posición libre ----------
      Cada tarjeta es position:absolute con left/top/width/height propios, sin
-     ataduras a filas ni columnas. Si hay un diseño guardado se aplica tal cual;
-     si no, computeDefaultLayout arma una disposición inicial razonable (mismo
-     acomodo que antes: pirámide arriba, luego 3 tercios, 2 mitades, y el resto
-     a lo ancho) calculando las posiciones directamente, sin depender de un
-     paso previo en flujo (evita el colapso de flex-column con alto "auto"). */
-  const LAYOUT_KEY = "facsecyd-dash-layout-v4";
-  const dashGrid = document.getElementById("dashGrid");
+     ataduras a filas ni columnas. Hay tres lienzos independientes -- KPIs
+     (siempre visible), Académico y Sociodemográfico (uno visible a la vez,
+     según la pestaña activa) -- cada uno con su propia disposición guardada,
+     para que "Editar diseño" funcione igual dentro de cualquier sección.
+     Si hay un diseño guardado se aplica tal cual; si no, computeDefaultLayout
+     arma una disposición inicial razonable calculando las posiciones
+     directamente, sin depender de un paso previo en flujo (evita el colapso
+     de flex-column con alto "auto"). */
 
-  function updateGridHeight(){
-    let maxBottom = 0;
-    dashGrid.querySelectorAll(".dcard").forEach(c=>{
-      const bottom = c.offsetTop + c.offsetHeight;
-      if (bottom > maxBottom) maxBottom = bottom;
-    });
-    dashGrid.style.height = (maxBottom + 4) + "px";
+  // Ancho de referencia compartido por los tres lienzos: el de .main menos su
+  // padding horizontal. No se puede leer el clientWidth del propio grid
+  // cuando su sección está oculta (display:none da 0), así que se mide desde
+  // .main, que siempre está visible.
+  function gridContainerWidth(){
+    const mainEl = document.querySelector(".main");
+    return mainEl ? (mainEl.clientWidth - 72) : 1200;
   }
 
-  function loadLayout(){
-    let raw;
-    try { raw = localStorage.getItem(LAYOUT_KEY); } catch(e){ return false; }
-    if (!raw) return false;
-    let layout;
-    try { layout = JSON.parse(raw); } catch(e){ return false; }
-    const positions = layout.positions || {};
-    if (!Object.keys(positions).length) return false;
-    Object.entries(positions).forEach(([id,pos])=>{
-      const card = dashGrid.querySelector('.dcard[data-id="'+id+'"]');
-      if (!card) return;
-      if (pos.left) card.style.left = pos.left;
-      if (pos.top) card.style.top = pos.top;
-      if (pos.width) card.style.width = pos.width;
-      if (pos.height) card.style.height = pos.height;
+  let editMode = false;
+
+  function makeGridController(gridEl, layoutKey, defaultPositions, heightPx){
+    function updateGridHeight(){
+      let maxBottom = 0;
+      gridEl.querySelectorAll(".dcard").forEach(c=>{
+        const bottom = c.offsetTop + c.offsetHeight;
+        if (bottom > maxBottom) maxBottom = bottom;
+      });
+      gridEl.style.height = (maxBottom + 4) + "px";
+    }
+    function loadLayout(){
+      let raw;
+      try { raw = localStorage.getItem(layoutKey); } catch(e){ return false; }
+      if (!raw) return false;
+      let layout;
+      try { layout = JSON.parse(raw); } catch(e){ return false; }
+      const positions = layout.positions || {};
+      if (!Object.keys(positions).length) return false;
+      Object.entries(positions).forEach(([id,pos])=>{
+        const card = gridEl.querySelector('.dcard[data-id="'+id+'"]');
+        if (!card) return;
+        if (pos.left) card.style.left = pos.left;
+        if (pos.top) card.style.top = pos.top;
+        if (pos.width) card.style.width = pos.width;
+        if (pos.height) card.style.height = pos.height;
+      });
+      updateGridHeight();
+      return true;
+    }
+    function saveLayout(){
+      const cards = [...gridEl.querySelectorAll(".dcard")];
+      const layout = {
+        positions: Object.fromEntries(cards.map(c=>[c.dataset.id, {
+          left: c.style.left || "", top: c.style.top || "",
+          width: c.style.width || "", height: c.style.height || ""
+        }]))
+      };
+      try { localStorage.setItem(layoutKey, JSON.stringify(layout)); } catch(e){}
+      return layout;
+    }
+    function computeDefaultLayout(){
+      const containerW = gridContainerWidth();
+      const gap = 14;
+      const widthPx = { "100%": containerW, "50%": (containerW-gap)/2, "33%": (containerW-2*gap)/3, "25%": (containerW-3*gap)/4 };
+      let x=0, y=0, rowH=0;
+      gridEl.querySelectorAll(".dcard").forEach(c=>{
+        const id = c.dataset.id;
+        const w = widthPx[c.dataset.w] || containerW;
+        const h = heightPx[id] || 260;
+        if (x > 0 && x+w > containerW+1){ x=0; y+=rowH+gap; rowH=0; }
+        c.style.left = Math.round(x) + "px";
+        c.style.top = Math.round(y) + "px";
+        c.style.width = Math.round(w) + "px";
+        c.style.height = Math.round(h) + "px";
+        x += w+gap;
+        rowH = Math.max(rowH, h);
+      });
+      updateGridHeight();
+    }
+    function applyDefaultPositions(){
+      Object.entries(defaultPositions).forEach(([id,pos])=>{
+        const card = gridEl.querySelector('.dcard[data-id="'+id+'"]');
+        if (!card) return;
+        card.style.left = pos.left;
+        card.style.top = pos.top;
+        card.style.width = pos.width;
+        card.style.height = pos.height;
+      });
+      updateGridHeight();
+    }
+
+    // Mover: arrastrar desde el asa (::drag-handle) actualiza left/top en vivo,
+    // siguiendo al cursor - posición libre, sin reordenar filas ni columnas.
+    let dragEl = null, dragging = false, dragOffX = 0, dragOffY = 0;
+    gridEl.addEventListener("mousedown", (e)=>{
+      if (!editMode) return;
+      const handle = e.target.closest(".drag-handle");
+      if (!handle) return;
+      dragEl = handle.closest(".dcard");
+      if (!dragEl) return;
+      const r = dragEl.getBoundingClientRect();
+      dragOffX = e.clientX - r.left;
+      dragOffY = e.clientY - r.top;
+      dragging = true;
+      dragEl.classList.add("dragging");
+      e.preventDefault();
     });
-    updateGridHeight();
-    return true;
-  }
-  function saveLayout(){
-    const cards = [...dashGrid.querySelectorAll(".dcard")];
-    const layout = {
-      positions: Object.fromEntries(cards.map(c=>[c.dataset.id, {
-        left: c.style.left || "", top: c.style.top || "",
-        width: c.style.width || "", height: c.style.height || ""
-      }]))
-    };
-    try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch(e){}
-    return layout;
-  }
-  function computeDefaultLayout(){
-    const containerW = dashGrid.clientWidth || 1200;
-    const gap = 14;
-    const widthPx = { "100%": containerW, "50%": (containerW-gap)/2, "33%": (containerW-2*gap)/3, "25%": (containerW-3*gap)/4 };
-    const heightPx = {
-      tituloIndicadores:36, tituloGraficos:36,
-      kpiInscripciones:110, kpiDobleCarrera:110, kpiSexo:110, kpiDiscapacidad:110, kpiInternacional:110,
-      pyramid:300, grupo:260, etnia:260, disc:260, trend:320, modsede:300,
-      carrera:460, ecuadorsplit:130, worldmap:420, ecuadormap:420
-    };
-    let x=0, y=0, rowH=0;
-    dashGrid.querySelectorAll(".dcard").forEach(c=>{
-      const id = c.dataset.id;
-      const w = widthPx[c.dataset.w] || containerW;
-      const h = heightPx[id] || 260;
-      if (x > 0 && x+w > containerW+1){ x=0; y+=rowH+gap; rowH=0; }
-      c.style.left = Math.round(x) + "px";
-      c.style.top = Math.round(y) + "px";
-      c.style.width = Math.round(w) + "px";
-      c.style.height = Math.round(h) + "px";
-      x += w+gap;
-      rowH = Math.max(rowH, h);
+    document.addEventListener("mousemove", (e)=>{
+      if (!dragging || !dragEl) return;
+      const gridRect = gridEl.getBoundingClientRect();
+      const left = Math.max(0, e.clientX - gridRect.left - dragOffX);
+      const top = Math.max(0, e.clientY - gridRect.top - dragOffY);
+      dragEl.style.left = left + "px";
+      dragEl.style.top = top + "px";
+      updateGridHeight();
     });
-    updateGridHeight();
+    document.addEventListener("mouseup", ()=>{
+      if (!dragging) return;
+      dragging = false;
+      if (dragEl) dragEl.classList.remove("dragging");
+      dragEl = null;
+      updateGridHeight();
+      saveLayout();
+      renderAll();
+    });
+
+    // Redimensionar (ancho y alto a la vez): resize nativo del navegador, arrastrando la
+    // esquina inferior derecha de la tarjeta; al soltar el mouse se guarda el tamaño resultante.
+    gridEl.addEventListener("mouseup", ()=>{
+      if (!editMode || dragging) return;
+      updateGridHeight();
+      saveLayout();
+      renderAll();
+    });
+
+    return { updateGridHeight, loadLayout, saveLayout, computeDefaultLayout, applyDefaultPositions };
   }
 
   // Diseño elegido y confirmado por el usuario (vía "Exportar diseño"), fijado
@@ -1154,38 +1238,45 @@
   // diseño propio guardado en su navegador. Se aplica ENCIMA del empaquetado
   // automático de computeDefaultLayout, que sigue sirviendo de respaldo por si
   // en el futuro se agrega una tarjeta que todavía no tiene posición fija aquí.
-  const DEFAULT_POSITIONS = {
-    tituloIndicadores: { left:"15px",      top:"0px",       width:"1118px", height:"32px" },
-    kpiInscripciones:  { left:"22px",      top:"31px",      width:"272px",  height:"166px" },
-    kpiDobleCarrera:   { left:"644px",     top:"38px",      width:"275px",  height:"158px" },
-    kpiSexo:           { left:"327px",     top:"33px",      width:"279px",  height:"162px" },
-    kpiDiscapacidad:   { left:"955px",     top:"39px",      width:"279px",  height:"156px" },
-    kpiInternacional:  { left:"1276px",    top:"38px",      width:"257px",  height:"160px" },
-    tituloGraficos:    { left:"17px",      top:"202px",     width:"1118px", height:"32px" },
-    trend:             { left:"22px",      top:"255px",     width:"405px",  height:"248px" },
-    modsede:           { left:"444.953px", top:"250.969px", width:"351px",  height:"250px" },
-    carrera:           { left:"809.953px", top:"245.953px", width:"723px",  height:"252px" },
-    etnia:             { left:"352.984px", top:"513.984px", width:"302px",  height:"251px" },
-    grupo:             { left:"664.984px", top:"514.984px", width:"280px",  height:"248px" },
-    pyramid:           { left:"21px",      top:"517.953px", width:"313px",  height:"472px" },
-    disc:              { left:"352.984px", top:"778.984px", width:"584px",  height:"209px" },
-    ecuadorsplit:      { left:"958.969px", top:"512.969px", width:"585px",  height:"141px" },
-    worldmap:          { left:"958px",     top:"661.969px", width:"298px",  height:"329px" },
-    ecuadormap:        { left:"1266.98px", top:"665.203px", width:"282px",  height:"332px" }
-  };
-  function applyDefaultPositions(){
-    Object.entries(DEFAULT_POSITIONS).forEach(([id,pos])=>{
-      const card = dashGrid.querySelector('.dcard[data-id="'+id+'"]');
-      if (!card) return;
-      card.style.left = pos.left;
-      card.style.top = pos.top;
-      card.style.width = pos.width;
-      card.style.height = pos.height;
-    });
-    updateGridHeight();
-  }
+  const kpiCtl = makeGridController(
+    document.getElementById("kpiGrid"),
+    "facsecyd-dash-layout-kpi-v1",
+    {
+      tituloIndicadores: { left:"15px",   top:"0px",  width:"1118px", height:"32px" },
+      kpiInscripciones:  { left:"83px",   top:"29px", width:"270px",  height:"164px" },
+      kpiDobleCarrera:   { left:"682px",  top:"34px", width:"275px",  height:"158px" },
+      kpiSexo:           { left:"377px",  top:"31px", width:"279px",  height:"162px" },
+      kpiDiscapacidad:   { left:"989px",  top:"36px", width:"279px",  height:"156px" },
+      kpiInternacional:  { left:"1290px", top:"35px", width:"257px",  height:"160px" }
+    },
+    { tituloIndicadores:36, kpiInscripciones:110, kpiDobleCarrera:110, kpiSexo:110, kpiDiscapacidad:110, kpiInternacional:110 }
+  );
+  const academicoCtl = makeGridController(
+    document.getElementById("dashGrid-academico"),
+    "facsecyd-dash-layout-academico-v1",
+    {
+      trend:   { left:"156px",     top:"4px",   width:"784px",  height:"302px" },
+      modsede: { left:"965.938px", top:"0px",   width:"461px",  height:"312px" },
+      carrera: { left:"162.938px", top:"323px", width:"1262px", height:"391px" }
+    },
+    { trend:320, modsede:300, carrera:460 }
+  );
+  const socioCtl = makeGridController(
+    document.getElementById("dashGrid-socio"),
+    "facsecyd-dash-layout-socio-v1",
+    {
+      pyramid:      { left:"21px",       top:"5px",   width:"591px",  height:"278px" },
+      grupo:        { left:"942.969px",  top:"8px",   width:"317px",  height:"273px" },
+      etnia:        { left:"625.969px",  top:"5px",   width:"305px",  height:"281px" },
+      disc:         { left:"1273.97px",  top:"4px",   width:"312px",  height:"275px" },
+      ecuadorsplit: { left:"22.9688px",  top:"296px", width:"1555px", height:"125px" },
+      worldmap:     { left:"33px",       top:"455px", width:"796px",  height:"410px" },
+      ecuadormap:   { left:"845.969px",  top:"454px", width:"724px",  height:"417px" }
+    },
+    { pyramid:300, grupo:260, etnia:260, disc:260, ecuadorsplit:130, worldmap:420, ecuadormap:420 }
+  );
+  const gridControllers = [kpiCtl, academicoCtl, socioCtl];
 
-  let editMode = false;
   const btnEditToggle = document.getElementById("btnEditToggle");
   const btnExport = document.getElementById("btnExport");
   const btnResetLayout = document.getElementById("btnResetLayout");
@@ -1199,62 +1290,45 @@
     btnResetLayout.hidden = !on;
     editHint.hidden = !on;
     if (!on){
-      saveLayout();
+      gridControllers.forEach(ctl=> ctl.saveLayout());
       renderAll();
     }
   }
   btnEditToggle.addEventListener("click", ()=> setEditMode(!editMode));
 
-  // Mover: arrastrar desde el asa (::drag-handle) actualiza left/top en vivo,
-  // siguiendo al cursor - posición libre, sin reordenar filas ni columnas.
-  let dragEl = null, dragging = false, dragOffX = 0, dragOffY = 0;
-  dashGrid.addEventListener("mousedown", (e)=>{
-    if (!editMode) return;
-    const handle = e.target.closest(".drag-handle");
-    if (!handle) return;
-    dragEl = handle.closest(".dcard");
-    if (!dragEl) return;
-    const r = dragEl.getBoundingClientRect();
-    dragOffX = e.clientX - r.left;
-    dragOffY = e.clientY - r.top;
-    dragging = true;
-    dragEl.classList.add("dragging");
-    e.preventDefault();
-  });
-  document.addEventListener("mousemove", (e)=>{
-    if (!dragging || !dragEl) return;
-    const gridRect = dashGrid.getBoundingClientRect();
-    const left = Math.max(0, e.clientX - gridRect.left - dragOffX);
-    const top = Math.max(0, e.clientY - gridRect.top - dragOffY);
-    dragEl.style.left = left + "px";
-    dragEl.style.top = top + "px";
-    updateGridHeight();
-  });
-  document.addEventListener("mouseup", ()=>{
-    if (!dragging) return;
-    dragging = false;
-    if (dragEl) dragEl.classList.remove("dragging");
-    dragEl = null;
-    updateGridHeight();
-    saveLayout();
-    renderAll();
+  // Pestañas internas: Académico / Sociodemográfico. Los KPIs no forman parte
+  // de ninguna pestaña -- quedan fijos arriba en las dos. Cada sección tiene
+  // su propio dcard-grid con disposición propia (ver arriba), así que al
+  // mostrar una sección basta con recalcular su alto (offsetTop/offsetHeight
+  // dan 0 mientras estuvo oculta con display:none) y re-renderizar sus
+  // gráficos, que tampoco pudieron medir su propio ancho mientras estaban ocultos.
+  const sectionPanels = {
+    "panel-academico": { el: document.getElementById("panel-academico"), ctl: academicoCtl },
+    "panel-socio":     { el: document.getElementById("panel-socio"),     ctl: socioCtl }
+  };
+  document.querySelectorAll(".subtab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if (btn.classList.contains("on")) return;
+      document.querySelectorAll(".subtab").forEach(b=> b.classList.toggle("on", b===btn));
+      Object.values(sectionPanels).forEach(p=> p.el.hidden = true);
+      const target = sectionPanels[btn.dataset.target];
+      target.el.hidden = false;
+      target.ctl.updateGridHeight();
+      renderAll();
+    });
   });
 
-  // Redimensionar (ancho y alto a la vez): resize nativo del navegador, arrastrando la
-  // esquina inferior derecha de la tarjeta; al soltar el mouse se guarda el tamaño resultante.
-  dashGrid.addEventListener("mouseup", ()=>{
-    if (!editMode || dragging) return;
-    updateGridHeight();
-    saveLayout();
-    renderAll();
-  });
-
-  // Exportar diseño actual como JSON, para pegarlo en el chat y dejarlo fijo
+  // Exportar diseño actual (las tres secciones) como JSON, para pegarlo en el
+  // chat y dejarlo fijo como DEFAULT_POSITIONS.
   const exportModal = document.getElementById("exportModal");
   const exportText = document.getElementById("exportText");
   btnExport.addEventListener("click", ()=>{
-    const layout = saveLayout();
-    exportText.value = JSON.stringify(layout, null, 2);
+    const combined = {
+      kpi: kpiCtl.saveLayout(),
+      academico: academicoCtl.saveLayout(),
+      socio: socioCtl.saveLayout()
+    };
+    exportText.value = JSON.stringify(combined, null, 2);
     exportModal.hidden = false;
     exportText.focus();
     exportText.select();
@@ -1282,7 +1356,11 @@
       setTimeout(()=>{ resetArmed = false; btnResetLayout.textContent = "Restablecer diseño"; }, 3000);
       return;
     }
-    try { localStorage.removeItem(LAYOUT_KEY); } catch(e){}
+    try {
+      localStorage.removeItem("facsecyd-dash-layout-kpi-v1");
+      localStorage.removeItem("facsecyd-dash-layout-academico-v1");
+      localStorage.removeItem("facsecyd-dash-layout-socio-v1");
+    } catch(e){}
     location.reload();
   });
 
@@ -1290,20 +1368,26 @@
 
   // El artifact vive dentro de un iframe cuyo ancho final lo define la página
   // que lo aloja, después de la primera carga. Si calculáramos las posiciones
-  // (computeDefaultLayout, que depende de dashGrid.clientWidth) de forma
-  // síncrona aquí, mediríamos un ancho de 0/incorrecto y quedaría fijo para
-  // siempre. Se difiere con doble requestAnimationFrame para asegurar que el
-  // iframe ya se asentó en su tamaño real antes de medir y renderizar.
+  // (computeDefaultLayout, que depende del ancho de .main) de forma síncrona
+  // aquí, mediríamos un ancho de 0/incorrecto y quedaría fijo para siempre.
+  // Se difiere con doble requestAnimationFrame para asegurar que el iframe ya
+  // se asentó en su tamaño real antes de medir y renderizar.
   function initDashboard(){
     // 1) Empaquetado automático como respaldo para todas las tarjetas,
     // 2) el diseño fijo confirmado por el usuario por encima,
     // 3) el diseño guardado en ESTE navegador (si existe) por encima de todo.
     // Así, una tarjeta nueva que todavía no tenga posición fija siempre
     // aparece en un lugar razonable en vez de quedar sin posición.
-    computeDefaultLayout();
-    applyDefaultPositions();
-    loadLayout();
+    gridControllers.forEach(ctl=>{
+      ctl.computeDefaultLayout();
+      ctl.applyDefaultPositions();
+      ctl.loadLayout();
+    });
     renderAll();
+    // La sección Sociodemográfico empieza oculta -- su alto se recalcula
+    // recién cuando el usuario la muestra (ver wireup de .subtab arriba).
+    kpiCtl.updateGridHeight();
+    academicoCtl.updateGridHeight();
     document.getElementById("loadingVeil").style.display = "none";
     document.getElementById("app").style.visibility = "visible";
   }
