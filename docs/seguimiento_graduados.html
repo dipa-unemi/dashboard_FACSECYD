@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seguimiento a Graduados · FACSECYD</title>
+<style>
+/* Paleta institucional UNEMI (data/Paleta de colores unemi.jpeg) */
+:root {
+  --az-1:#1c3247; --az-2:#264763; --az-3:#335f7f; --az-4:#3c7aa0; --az-5:#4597bf;
+  --na-1:#fc7e00; --na-2:#ea7d06; --na-3:#f48521; --na-4:#f78d37; --na-5:#f7964d;
+  --na-cl:#fe9900; --na-cl2:#f28f19;
+
+  --ink:#1c3247; --ink2:#3d5568; --ink3:#7e93a3; --ink4:#c3cfd8;
+  --paper:#ffffff; --paper2:#f5f7f9; --paper3:#eaeef2;
+  --edge:#dee5eb; --edge2:#c3cfd8;
+  --acento:var(--na-1); --acento-lt:#fde7cc;
+
+  --r:7px; --r-lg:10px;
+  --font: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
+  --shadow-sm: 0 1px 3px rgba(28,50,71,.07), 0 1px 2px rgba(28,50,71,.04);
+  --shadow: 0 2px 8px rgba(28,50,71,.09), 0 1px 3px rgba(28,50,71,.05);
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:var(--font); background:var(--paper2); color:var(--ink); font-size:14px; line-height:1.5; }
+:focus-visible { outline:2px solid var(--acento); outline-offset:2px; }
+[hidden] { display:none !important; }
+
+.shell { display:grid; grid-template-columns:272px 1fr; min-height:100vh; }
+.side { background:var(--paper); border-right:1px solid var(--edge); padding:20px 18px 40px;
+  position:sticky; top:0; height:100vh; overflow-y:auto; }
+.brand { display:flex; align-items:center; gap:10px; border-bottom:2px solid var(--az-1);
+  padding-bottom:13px; margin-bottom:18px; }
+.logo { width:32px; height:32px; background:var(--acento); border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; }
+.logo svg { width:18px; height:18px; fill:none; stroke:#fff; stroke-width:1.7;
+  stroke-linecap:round; stroke-linejoin:round; }
+.brand h1 { font-size:16px; line-height:1.2; font-weight:700; letter-spacing:-.01em; }
+.brand p { font-size:11px; color:var(--ink3); margin-top:2px; line-height:1.3; }
+.fgroup { margin-bottom:18px; }
+.fgroup h2 { font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--ink3); font-weight:700; margin-bottom:8px; }
+.fld { margin-bottom:10px; }
+.fld label { display:block; font-size:11.5px; color:var(--ink2); margin-bottom:4px; font-weight:600; }
+select { width:100%; font-family:var(--font); font-size:13px; color:var(--ink);
+  background:var(--paper); border:1px solid var(--edge2); border-radius:var(--r); padding:7px 9px; cursor:pointer; }
+select:hover { border-color:var(--az-4); }
+.scope { background:var(--paper3); border-radius:var(--r); padding:11px 13px; margin-bottom:12px; }
+.scope .row { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:4px 0; }
+.scope .row + .row { border-top:1px solid var(--edge); }
+.scope .k { font-size:11.5px; color:var(--ink2); }
+.scope .v { font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; }
+.btn-reset { width:100%; font-family:var(--font); font-size:12px; font-weight:600;
+  color:var(--ink2); background:var(--paper); border:1px solid var(--edge2);
+  border-radius:var(--r); padding:7px; cursor:pointer; }
+.btn-reset:hover { border-color:var(--acento); color:var(--acento); }
+
+.main { padding:0 0 50px; max-width:1400px; }
+.topbar { position:sticky; top:0; z-index:30; background:var(--paper);
+  border-bottom:1px solid var(--edge); padding:15px 26px 0; }
+.head { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.head h2 { font-size:22px; font-weight:700; letter-spacing:-.015em; line-height:1.15; }
+.head .sub { font-size:12.5px; color:var(--ink3); margin-top:3px; }
+.rate { display:flex; align-items:center; gap:9px; background:var(--paper3); border-radius:var(--r); padding:7px 13px; }
+.rate .n { font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--az-2); }
+.rate .l { font-size:10.5px; color:var(--ink3); line-height:1.25; max-width:135px; }
+.chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+.chip { display:inline-flex; align-items:center; gap:7px; background:var(--acento-lt);
+  color:#8a4400; border:1px solid var(--na-4); border-radius:20px; padding:3px 6px 3px 11px;
+  font-size:11.5px; font-weight:700; cursor:pointer; font-family:var(--font); }
+.chip .x { font-size:14px; line-height:1; opacity:.6; padding:0 3px; }
+.chip:hover .x { opacity:1; }
+.tabs { display:flex; gap:2px; margin-top:11px; }
+.tab { font-family:var(--font); font-size:13px; font-weight:600; color:var(--ink3);
+  background:none; border:0; border-bottom:2.5px solid transparent; padding:9px 15px; cursor:pointer; }
+.tab:hover { color:var(--ink); }
+.tab.on { color:var(--ink); border-bottom-color:var(--acento); }
+
+.body { padding:20px 26px 0; }
+.kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:11px; margin-bottom:18px; }
+.kpi { background:var(--paper); border:1px solid var(--edge); border-radius:var(--r-lg);
+  padding:13px 15px 11px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:3px; }
+.kpi .lbl { font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink3); font-weight:600; line-height:1.3;
+  min-height:32px; display:flex; align-items:flex-start; gap:6px; }
+.kicow { flex:0 0 auto; display:inline-flex; margin-top:-1px; }
+.kico { width:15px; height:15px; }
+.kpi .val { font-size:28px; font-weight:700; letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; }
+.kpi .base { font-size:10.5px; color:var(--ink3); font-variant-numeric:tabular-nums; }
+.kpi.na .val { color:var(--ink4); font-size:20px; }
+.kpi .bar { height:4px; border-radius:2px; background:var(--paper3); overflow:hidden; margin-top:2px; }
+.kpi .bar i { display:block; height:100%; border-radius:2px; }
+
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:12px; }
+.grid2.wide-left { grid-template-columns:1.35fr 1fr; }
+@media (max-width:1150px){ .grid2,.grid3,.grid2.wide-left { grid-template-columns:1fr; } }
+.panel { background:var(--paper); border:1px solid var(--edge); border-radius:var(--r-lg);
+  padding:14px 16px 13px; box-shadow:var(--shadow-sm); margin-bottom:12px; }
+.ph { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.ph h4 { font-size:13.5px; font-weight:700; line-height:1.3; }
+.info { display:inline-flex; width:15px; height:15px; border-radius:50%; border:1.4px solid var(--ink3);
+  color:var(--ink3); align-items:center; justify-content:center; font-size:10px; font-weight:700;
+  cursor:help; flex:0 0 auto; background:none; font-family:var(--font); }
+.info:hover { border-color:var(--acento); color:var(--acento); }
+.ph-note { font-size:11.5px; color:var(--ink3); margin:2px 0 10px; font-variant-numeric:tabular-nums; }
+.empty { color:var(--ink3); font-size:12.5px; padding:18px 4px; text-align:center;
+  background:var(--paper3); border-radius:var(--r); line-height:1.5; }
+.empty b { color:var(--ink2); display:block; margin-bottom:3px; }
+
+.bars { display:flex; flex-direction:column; gap:8px; }
+.brow { display:grid; grid-template-columns:1fr auto; gap:3px 10px; align-items:center;
+  border-radius:4px; padding:2px 4px; margin:-2px -4px; }
+.brow[data-dim],.brow[data-ind] { cursor:pointer; }
+.brow[data-dim]:hover,.brow[data-ind]:hover { background:var(--paper3); }
+.brow .bl { font-size:12.5px; color:var(--ink2); line-height:1.3; }
+.brow .bv { font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; text-align:right; }
+.brow .btrack { display:block; grid-column:1/-1; height:14px; background:var(--paper3);
+  border-radius:3px; overflow:hidden; }
+.brow .bfill { display:block; height:100%; min-width:2px; border-radius:3px;
+  transition:width .3s cubic-bezier(.2,.7,.3,1); }
+.brow.sel { background:var(--acento-lt); }
+.brow.sel .bl { font-weight:700; color:var(--ink); }
+.brow.mut .bl,.brow.mut .bv { color:var(--ink3); font-style:italic; }
+
+.sexsplit { display:flex; gap:10px; }
+.sexbox { flex:1; display:flex; align-items:center; gap:10px; font-family:var(--font);
+  background:var(--paper2); border:1px solid var(--edge); border-radius:var(--r);
+  padding:12px 14px; cursor:pointer; text-align:left; }
+.sexbox:hover { border-color:var(--az-4); }
+.sexbox.sel { background:var(--acento-lt); border-color:var(--na-4); }
+.sexsim { font-size:30px; line-height:1; }
+.sextxt { display:flex; flex-direction:column; gap:1px; }
+.sexn { font-size:20px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
+.sexp { font-size:11.5px; color:var(--ink3); }
+.chip-resp { border-color:var(--na-1); color:var(--na-1); font-weight:700; }
+.chip-nota { font-size:11px; color:var(--ink3); align-self:center; }
+.fld.off { opacity:.45; }
+.fld.off select { cursor:not-allowed; }
+.strip { display:flex; height:22px; border-radius:4px; overflow:hidden; gap:2px; }
+.strip i { display:block; }
+.strip-legend { display:flex; justify-content:space-between; font-size:10.5px; color:var(--ink3); margin-top:5px; }
+.escrow { padding:9px 0; border-bottom:1px solid var(--edge); }
+.escrow:last-child { border-bottom:0; }
+.escrow .top { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:6px; }
+.escrow .nm { font-size:12.5px; font-weight:600; }
+.escrow .fig { font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--az-3); }
+
+.div-row { display:grid; grid-template-columns:118px 1fr; gap:10px; align-items:center; padding:8px 0; }
+.div-bar { display:flex; height:22px; border-radius:3px; overflow:hidden; gap:2px; }
+.div-bar i { display:flex; align-items:center; justify-content:center; font-size:10.5px;
+  font-weight:700; color:#fff; min-width:0; }
+
+svg { display:block; width:100%; height:auto; overflow:visible; }
+.tip { position:fixed; z-index:60; pointer-events:none; background:var(--az-1); color:#fff;
+  font-size:11.5px; padding:7px 10px; border-radius:5px; box-shadow:var(--shadow);
+  opacity:0; transition:opacity .12s; max-width:270px; line-height:1.4; }
+.tip.on { opacity:1; }
+.tip b { display:block; font-weight:700; margin-bottom:2px; }
+.legend { display:flex; flex-wrap:wrap; gap:6px 15px; margin-bottom:9px; }
+.legend span { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--ink2); }
+.legend i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+.lectura { background:var(--paper3); border-left:3px solid var(--az-4); border-radius:0 var(--r) var(--r) 0;
+  padding:10px 13px; font-size:12.5px; color:var(--ink2); line-height:1.5; margin-top:10px; }
+.lectura b { color:var(--ink); }
+.segbtns { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:11px; }
+.segbtn { font-family:var(--font); font-size:11.5px; font-weight:600; color:var(--ink2);
+  background:var(--paper2); border:1px solid var(--edge2); border-radius:20px; padding:5px 12px; cursor:pointer; }
+.segbtn:hover { border-color:var(--az-4); }
+.segbtn.on { background:var(--az-2); color:#fff; border-color:var(--az-2); }
+@media (max-width:900px){
+  .shell { grid-template-columns:1fr; }
+  .side { position:static; height:auto; border-right:0; border-bottom:1px solid var(--edge); }
+  .topbar,.body { padding-left:14px; padding-right:14px; }
+}
+@media (prefers-reduced-motion:reduce){ * { transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 10v6"/></svg>
+      </div>
+      <div>
+        <h1>Seguimiento a Graduados</h1>
+        <p>Trayectoria laboral y pertinencia de la formación</p>
+      </div>
+    </div>
+    <div class="fgroup">
+      <h2>Filtros</h2>
+      <div id="filtros"></div>
+      <button type="button" class="btn-reset" id="btnReset">Restablecer filtros</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="head">
+        <div><h2 id="titulo">Todos los graduados</h2><p class="sub" id="subtitulo"></p></div>
+        <div class="rate" id="rateBox" hidden><span class="n" id="rateN">—</span><span class="l" id="rateL"></span></div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="body"><div class="kpis" id="kpis"></div><div id="vista"></div></div>
+  </main>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="data_graduados.js"></script>
+<script>
+(function () {
+  "use strict";
+  const D = RAW_GRADUADOS, META = D.meta, DIMS = D.dims, DICT = D.dicts;
+  const VACIO = META.vacio, UMBRAL = META.umbral_supresion;
+  const iDim = {}; DIMS.forEach((d, i) => iDim[d] = i);
+  const catInfo = {}; D.catalogo.forEach(c => catInfo[c.id] = c);
+
+  /* ── Filas: se parsean una vez a enteros ─────────────────────────────── */
+  function parse(s, extra) {
+    if (!s) return [];
+    const L = s.split("\n"), n = DIMS.length, out = new Array(L.length);
+    for (let i = 0; i < L.length; i++) {
+      const p = L[i].split("|"), r = new Int32Array(n + extra);
+      for (let j = 0; j < n + extra; j++) r[j] = +p[j];
+      out[i] = r;
+    }
+    return out;
+  }
+  const CAT = parse(D.rows_cat, 3);   // ...dims, indicador, categoria, n
+  const ESC = parse(D.rows_esc, 8);   // ...dims, bloque, n1..n7
+  const PER = parse(D.rows_per, 2);   // ...dims, observaciones, personas
+  const COMP = parse(D.rows_comp, 3); // ...dims, competencia, alta, total
+  const ND = DIMS.length;
+
+  /* Cruce indicador x indicador: lo que permite pulsar una barra de cualquier
+     panel y filtrar el resto del tablero.
+
+     Estas tablas NO llevan dimensiones demográficas, y por eso tampoco llevan
+     supresión de celdas. Se probó cruzarlas por año+ola+carrera: a esa
+     granularidad las celdas quedan diminutas, la regla k=5 se lleva justo las
+     categorías minoritarias y las condicionales salían sesgadas hasta 89 puntos.
+     Sin clave demográfica no hay vía de reidentificación que k proteja, así que
+     se publican completas y el porcentaje condicional es exacto (sesgo medido
+     contra la fuente: 0,81 pp como máximo, que es la pérdida k-anónima del 1,4 %
+     que ya afecta a todas las demás cifras del módulo).
+
+     El precio: un filtro de respuesta da el corte de TODA la facultad y no se
+     combina con carrera, año ni momento. El tablero lo declara al usuario. */
+  function parseX(str, campos) {
+    if (!str) return [];
+    const L = str.split("\n"), out = new Array(L.length);
+    for (let i = 0; i < L.length; i++) {
+      const q = L[i].split("|"), r = new Int32Array(campos);
+      for (let j = 0; j < campos; j++) r[j] = +q[j];
+      out[i] = r;
+    }
+    return out;
+  }
+  const XCAT = parseX(D.rows_cross, 5);      // ind_f, cat_f, ind_m, cat_m, n
+  const XESC = parseX(D.rows_cross_esc, 10); // ind_f, cat_f, bloque, n1..n7
+  const XDIM = parseX(D.rows_cross_dim, 5);  // ind_f, cat_f, dim, valor, n
+  const XTOT = parseX(D.rows_cross_tot, 3);  // ind_f, cat_f, n
+
+  const fmt = new Intl.NumberFormat("es-EC");
+  const pct1 = x => (Math.round(x * 10) / 10).toLocaleString("es-EC",
+    { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const cap = s => String(s).charAt(0) + String(s).slice(1).toLowerCase();
+  function etq(dim, v) {
+    if (v === VACIO) return "No especificado";
+    return ["sexo", "etnia", "grupo_socioeconomico"].includes(dim)
+      ? v.split("/").map(cap).join("/") : v;
+  }
+
+  /* ── Estado: un filtro por dimensión, como el cross de Perfil ───────── */
+  /* state.fi es el filtro por RESPUESTA (pulsar "0 a 6 meses"), distinto de
+     state.f, que son los filtros por dimensión. Sólo puede haber uno activo:
+     el archivo publica cruces de dos indicadores, no de tres. */
+  const state = { f: {}, fi: null, tab: "trayectoria", metrica: "empleabilidad" };
+  const hayFi = () => state.fi !== null;
+
+  /* Una fila pasa el filtro si coincide en todas las dimensiones fijadas.
+     Se ignora la dimensión que el propio gráfico dibuja, para que un gráfico
+     nunca se reduzca a la barra que acabas de pulsar. */
+  function pasa(r, salvo) {
+    for (const d in state.f) {
+      if (d === salvo) continue;
+      if (r[iDim[d]] !== state.f[d]) return false;
+    }
+    return true;
+  }
+  function fijar(dim, valorIdx) {
+    if (state.f[dim] === valorIdx) delete state.f[dim];
+    else state.f[dim] = valorIdx;
+    render();
+  }
+  let soltadas = [];
+  function fijarInd(indIdx, catIdx) {
+    if (state.fi && state.fi.ind === indIdx && state.fi.cat === catIdx) {
+      state.fi = null; soltadas = [];
+    } else {
+      // El cruce se publica sin dimensiones, así que un filtro de respuesta no
+      // se combina con ninguna: se sueltan todas y se dice cuáles.
+      state.fi = { ind: indIdx, cat: catIdx };
+      soltadas = Object.keys(state.f);
+      soltadas.forEach(d => delete state.f[d]);
+    }
+    render();
+  }
+
+  /* ── Agregadores sobre las filas filtradas ──────────────────────────── */
+  function conteo(salvo) {
+    if (hayFi()) {
+      let obs = 0;
+      for (const r of XTOT) if (r[0] === state.fi.ind && r[1] === state.fi.cat) obs = r[2];
+      return { obs, per: obs };
+    }
+    let obs = 0, per = 0;
+    for (const r of PER) if (pasa(r, salvo)) { obs += r[ND]; per += r[ND + 1]; }
+    return { obs, per };
+  }
+  /** Distribución de un indicador categórico: {categoria -> n}, base y personas */
+  function distrib(indId, salvo) {
+    const ii = D.indicadores.indexOf(indId);
+    if (ii < 0) return null;
+    // Con filtro de respuesta activo, todo indicador DISTINTO al del filtro se
+    // lee de la tabla cruzada. El propio indicador del filtro conserva su
+    // distribución completa, para poder ver dónde cae la selección y cambiarla.
+    if (hayFi() && state.fi.ind !== ii) {
+      const mc = new Map(); let bc = 0;
+      for (const r of XCAT) {
+        if (r[0] !== state.fi.ind || r[1] !== state.fi.cat || r[2] !== ii) continue;
+        mc.set(r[3], (mc.get(r[3]) || 0) + r[4]); bc += r[4];
+      }
+      return bc ? { m: mc, base: bc } : null;
+    }
+    const m = new Map(); let base = 0;
+    for (const r of CAT) {
+      if (r[ND] !== ii || !pasa(r, salvo)) continue;
+      const k = r[ND + 1], n = r[ND + 2];
+      m.set(k, (m.get(k) || 0) + n); base += n;
+    }
+    if (!base) return null;
+    return { m, base };
+  }
+
+  /** Ejecuta una función con OTROS filtros y restaura los actuales.
+     Sirve para calcular la referencia de toda la facultad mientras hay un
+     filtro puesto: sin comparación, un 76 % no dice si es bueno o malo. */
+  function con(filtros, fn) {
+    const g = state.f; state.f = filtros;
+    try { return fn(); } finally { state.f = g; }
+  }
+  const hayFiltro = () => Object.keys(state.f).length > 0 || hayFi();
+  /** Ejecuta fn sin NINGÚN filtro, ni de dimensión ni de respuesta: es la
+      referencia de toda la facultad contra la que se compara el corte. */
+  function conFacultad(fn) {
+    const gf = state.f, gi = state.fi;
+    state.f = {}; state.fi = null;
+    try { return fn(); } finally { state.f = gf; state.fi = gi; }
+  }
+  /* El diccionario llega ordenado alfabeticamente desde el pipeline y, para las
+     olas, el alfabeto invierte el tiempo ("A los dos años" < "Al año" <
+     "Al graduarse"). El orden cronológico se declara aquí y lo usa todo panel
+     que dibuje la trayectoria: si no, la pendiente se lee al revés. */
+  const ORDEN_OLA = ["Al graduarse", "Al año", "A los dos años"];
+  const olasCronologicas = () => ORDEN_OLA.filter(o => DICT.ola.includes(o));
+  /** Distribución 1-7 de un bloque de escala */
+  function escala(blqId, salvo) {
+    const bi = D.bloques.indexOf(blqId);
+    if (bi < 0) return null;
+    if (hayFi()) {
+      const nc = new Array(7).fill(0); let tc = 0;
+      for (const r of XESC) {
+        if (r[0] !== state.fi.ind || r[1] !== state.fi.cat || r[2] !== bi) continue;
+        for (let i = 0; i < 7; i++) { nc[i] += r[3 + i]; tc += r[3 + i]; }
+      }
+      if (!tc) return null;
+      let sc = 0; for (let i = 0; i < 7; i++) sc += (i + 1) * nc[i];
+      return { n: nc, tot: tc, alta: 100 * (nc[5] + nc[6]) / tc,
+               baja: 100 * (nc[0] + nc[1]) / tc, media: sc / tc };
+    }
+    const n = new Array(7).fill(0); let tot = 0;
+    for (const r of ESC) {
+      if (r[ND] !== bi || !pasa(r, salvo)) continue;
+      for (let i = 0; i < 7; i++) { n[i] += r[ND + 1 + i]; tot += r[ND + 1 + i]; }
+    }
+    if (!tot) return null;
+    const alta = 100 * (n[5] + n[6]) / tot, baja = 100 * (n[0] + n[1]) / tot;
+    let s = 0; for (let i = 0; i < 7; i++) s += (i + 1) * n[i];
+    return { n, tot, alta, baja, media: s / tot };
+  }
+  /** Conteo por valor de una dimensión (para los gráficos que filtran) */
+  function porDim(dim) {
+    if (hayFi()) {
+      // Marginales de una vía del corte. Aquí sí se aplicó k en el pipeline:
+      // un conteo por dimensión sí tiene clave demográfica. Son conteos de
+      // contexto, no porcentajes, así que la supresión no sesga ninguna lectura.
+      const di = DIMS.indexOf(dim);
+      if (di < 0) return null;
+      const mc = new Map();
+      for (const r of XDIM) {
+        if (r[0] !== state.fi.ind || r[1] !== state.fi.cat || r[2] !== di) continue;
+        mc.set(r[3], (mc.get(r[3]) || 0) + r[4]);
+      }
+      return mc.size ? mc : null;
+    }
+    const m = new Map();
+    for (const r of PER) {
+      if (!pasa(r, dim)) continue;
+      const k = r[iDim[dim]];
+      m.set(k, (m.get(k) || 0) + r[ND]);
+    }
+    return m;
+  }
+  const pctCat = (dd, nombre) => {
+    if (!dd) return null;
+    const k = D.categorias.indexOf(nombre);
+    return { pct: 100 * (dd.m.get(k) || 0) / dd.base, base: dd.base };
+  };
+
+  /* ── Tooltip ─────────────────────────────────────────────────────────── */
+  const tip = document.getElementById("tip");
+  function mover(e) {
+    const r = tip.getBoundingClientRect();
+    let x = e.clientX + 14, y = e.clientY + 14;
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - 14;
+    if (y + r.height > innerHeight - 8) y = e.clientY - r.height - 14;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function conTip(el, html) {
+    el.addEventListener("mouseenter", e => { tip.innerHTML = html; tip.classList.add("on"); mover(e); });
+    el.addEventListener("mousemove", mover);
+    el.addEventListener("mouseleave", () => tip.classList.remove("on"));
+  }
+
+  /* ── Colores institucionales ─────────────────────────────────────────── */
+  const SEQ = ["#dfe9f0", "#a9c4d5", "#4597bf", "#3c7aa0", "#335f7f", "#264763", "#1c3247"];
+  const COLOR_SIT = { "Relación de dependencia": "var(--az-2)", "Negocio propio": "var(--az-5)",
+    "Honorarios profesionales": "var(--na-5)", "Sin actividad laboral": "var(--na-1)" };
+  const COLOR_OLA = { "Al graduarse": "var(--az-5)", "Al año": "var(--az-3)", "A los dos años": "var(--na-1)" };
+
+  /* ── Componentes ─────────────────────────────────────────────────────── */
+  const infoIcon = txt => '<button type="button" class="info" data-t="' + esc(txt) + '">i</button>';
+
+  /* Iconos de trazo, del mismo juego que usa Rendimiento Académico */
+  const ICO = {
+    maletin: '<path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><path d="M2 12h20"/>',
+    reloj: '<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/>',
+    diana: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.2"/><line x1="12" y1="1.5" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22.5" y2="12"/>',
+    lupa: '<circle cx="11" cy="11" r="7"/><line x1="16.2" y1="16.2" x2="21" y2="21"/>',
+    personas: '<circle cx="9" cy="8" r="3"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 8.3c1.4.3 2.5 1.5 2.5 3s-1.1 2.7-2.5 3"/><path d="M18.5 14.3c2 .5 3 1.9 3 3.7"/>',
+    contrato: '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>',
+    moneda: '<circle cx="12" cy="12" r="9"/><path d="M15 9.2A3.2 3.2 0 0012 8c-1.7 0-3 .9-3 2.1 0 2.8 6 1.5 6 4.2 0 1.2-1.3 2.1-3 2.1a3.2 3.2 0 01-3-1.2"/><line x1="12" y1="6" x2="12" y2="18"/>',
+    escalera: '<path d="M3 20h5v-5H3z"/><path d="M9.5 20h5V10h-5z"/><path d="M16 20h5V4h-5z"/>',
+    edificio: '<line x1="2.5" y1="21" x2="21.5" y2="21"/><path d="M5 21V5a1 1 0 011-1h6a1 1 0 011 1v16"/><path d="M13 21V10h5a1 1 0 011 1v10"/><line x1="8" y1="8" x2="10" y2="8"/><line x1="8" y1="12" x2="10" y2="12"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="15.5" y1="14" x2="16.5" y2="14"/><line x1="15.5" y1="17.5" x2="16.5" y2="17.5"/>',
+    alerta: '<path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    birrete: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/>',
+    enlace: '<path d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/>',
+    llave: '<path d="M14.5 3a6.5 6.5 0 00-6.1 8.7L3 17.1V21h3.9l1.6-1.6v-2h2v-2h2l1.1-1.1A6.5 6.5 0 1014.5 3z"/><circle cx="16.5" cy="7.5" r="1.2"/>',
+    libro: '<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>'
+  };
+  const ico = k => '<svg class="kico" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+    'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + ICO[k] + "</svg>";
+  const vacio = m => '<div class="empty"><b>Sin datos publicables en este corte</b>' + m + "</div>";
+  const cortoUmbral = "Menos de " + UMBRAL + " graduados responden esta pregunta con los filtros " +
+    "aplicados. El dato existe, pero mostrarlo permitiría identificar a alguien.";
+  /* El cruce por respuesta se publica sobre año, momento y carrera. Un panel que
+     necesite otra variable no puede calcularse mientras ese filtro esté puesto,
+     y lo dice en vez de dibujar algo que no corresponde. */
+  const fueraDelCruce = que => '<div class="empty"><b>No disponible con este filtro</b>' +
+    que + " no puede calcularse mientras filtras por una respuesta concreta. " +
+    "Quita el filtro para volver a verlo.</div>";
+
+  /** Barras de un indicador categórico. Siempre filtrables por su dimensión no
+      aplica: filtran por la categoría sólo cuando la categoría ES una dimensión. */
+  function panelCat(indId, op) {
+    op = op || {};
+    const info = catInfo[indId] || {};
+    const dd = distrib(indId, null);
+    let h = '<div class="panel"><div class="ph"><h4>' + (op.titulo || info.titulo) + "</h4>" +
+      infoIcon(info.nota || "") + "</div>";
+    if (!dd || dd.base < UMBRAL) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    h += '<p class="ph-note">Base: ' + fmt.format(dd.base) + " respuestas</p>";
+    const orden = (info.orden && info.orden.length) ? info.orden : null;
+    const iiInd = D.indicadores.indexOf(indId);
+    let filas = [...dd.m.entries()].map(([k, n]) => ({ k, cat: D.categorias[k], n, pct: 100 * n / dd.base }));
+    // Categorías por debajo del umbral: se agrupan para no exponer celdas mínimas
+    const chicas = filas.filter(f => f.n < UMBRAL);
+    filas = filas.filter(f => f.n >= UMBRAL);
+    if (chicas.length) {
+      const n = chicas.reduce((s, f) => s + f.n, 0);
+      filas.push({ k: -1, cat: "Resto agrupado", n, pct: 100 * n / dd.base, resto: true });
+    }
+    if (!filas.length) return h + vacio(cortoUmbral) + "</div>";
+    filas.sort((a, b) => {
+      if (a.resto) return 1; if (b.resto) return -1;
+      // El cotejo es sin distinguir mayusculas: el archivo trae "1001 A 2000"
+      // y la lista declarada dice "1001 a 2000". Sin esto ese tramo se iba al
+      // final y la escalera salarial se leia desordenada.
+      if (orden) { const ci = (x, o) => o.findIndex(v => v.toLowerCase() === x.toLowerCase());
+        const ia = ci(a.cat, orden), ib = ci(b.cat, orden);
+        if (ia !== -1 || ib !== -1) return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib); }
+      return b.pct - a.pct;
+    });
+    const max = Math.max(...filas.map(f => f.pct), 1);
+    const dest = new Set(info.destacar || []);
+
+    // Referencia: la misma distribución sin ningún filtro. Un 76 % sólo significa
+    // algo comparado con el 67 % del conjunto de la facultad.
+    let ref = null;
+    if (hayFiltro()) {
+      const g = conFacultad(() => distrib(indId, null));
+      if (g && g.base >= UMBRAL) {
+        ref = new Map([...g.m.entries()].map(([k, n]) => [D.categorias[k], 100 * n / g.base]));
+      }
+    }
+
+    h += '<div class="bars">';
+    filas.forEach(f => {
+      const col = f.resto ? "var(--ink4)"
+        : (hayFi() && state.fi.ind === iiInd && state.fi.cat === f.k) ? "var(--na-1)"
+        : dest.has(f.cat) ? "var(--na-1)" : (op.color || "var(--az-3)");
+      const rv = ref && !f.resto ? ref.get(f.cat) : null;
+      let marca = "", dif = "";
+      if (rv != null) {
+        const x = Math.min(99.4, 100 * rv / max);
+        marca = '<b style="position:absolute;left:' + x + '%;top:-2px;width:2px;height:18px;' +
+          'background:var(--ink);opacity:.55;border-radius:1px"></b>';
+        const d = f.pct - rv;
+        if (Math.abs(d) >= 1) dif = '<span style="font-weight:400;font-size:11px;color:' +
+          (d > 0 ? "var(--az-3)" : "var(--na-2)") + '"> ' + (d > 0 ? "▲" : "▼") +
+          pct1(Math.abs(d)).replace("%", "") + "</span>";
+      }
+      // Pulsable salvo «Resto agrupado», que no es una categoría del cuestionario
+      // y por tanto no es un corte por el que se pueda filtrar.
+      const selF = hayFi() && state.fi.ind === iiInd && state.fi.cat === f.k;
+      const clic = f.resto ? "" : ' data-ind="' + iiInd + '" data-cat="' + f.k + '"';
+      h += '<div class="brow' + (f.resto ? " mut" : "") + (selF ? " sel" : "") + '"' + clic + ' data-t="' +
+        esc("<b>" + f.cat + "</b>" + fmt.format(f.n) + " de " + fmt.format(dd.base) + " respuestas" +
+          (rv != null ? "<br>En toda la facultad: " + pct1(rv) +
+            "<br>Este grupo está " + pct1(Math.abs(f.pct - rv)).replace("%", "") + " puntos " +
+            (f.pct >= rv ? "por encima" : "por debajo") : "") +
+          (f.resto ? "" : selF ? "<br>Pulsa para quitar este filtro"
+                               : "<br>Pulsa para filtrar el tablero por esta respuesta")) +
+        '"><span class="bl">' + f.cat + '</span><span class="bv">' + pct1(f.pct) + dif +
+        '</span><span class="btrack" style="position:relative"><i class="bfill" style="width:' +
+        (100 * f.pct / max) + "%;background:" + col + ';"></i>' + marca + "</span></div>";
+    });
+    h += "</div>";
+    if (ref) h += '<p class="ph-note" style="margin:8px 0 0">La línea vertical marca el valor de ' +
+      "toda la facultad. La flecha dice cuántos puntos está este grupo por encima (&#9650;) o por " +
+      "debajo (&#9660;) de ese valor.</p>";
+    if (op.lectura) h += '<div class="lectura">' + op.lectura + "</div>";
+    return h + "</div>";
+  }
+
+  /** Barras de una DIMENSIÓN: al pulsarlas filtran todo el tablero */
+  function panelDim(dim, titulo, nota, op) {
+    op = op || {};
+    const m = porDim(dim);
+    let h = '<div class="panel"><div class="ph"><h4>' + titulo + "</h4>" + infoIcon(nota) + "</div>";
+    if (!m) return h + fueraDelCruce("«" + (ETQ[dim] || dim) + "»") + "</div>";
+    // El valor difuminado por la anonimización no es una categoría real: se
+    // excluye del gráfico y se declara aparte, en vez de dibujar una barra
+    // "No especificado" que el lector confundiría con un dato de la encuesta.
+    let filas = [...m.entries()].map(([k, n]) => ({ k, v: DICT[dim][k], n }))
+      .filter(f => f.n >= UMBRAL && f.v !== VACIO);
+    const difuminadas = [...m.entries()].filter(([k]) => DICT[dim][k] === VACIO)
+      .reduce((s, [, n]) => s + n, 0);
+    if (!filas.length) return h + vacio(cortoUmbral) + "</div>";
+    if (op.orden) filas.sort((a, b) => op.orden.indexOf(a.v) - op.orden.indexOf(b.v));
+    else if (op.ordenFijo) filas.sort((a, b) => a.v.localeCompare(b.v, "es"));
+    else filas.sort((a, b) => b.n - a.n);
+    const max = Math.max(...filas.map(f => f.n));
+    h += '<div class="bars">';
+    filas.forEach(f => {
+      const sel = state.f[dim] === f.k;
+      h += '<div class="brow' + (sel ? " sel" : "") + '" data-dim="' + dim + '" data-k="' + f.k +
+        '" data-t="' + esc("<b>" + etq(dim, f.v) + "</b>" + fmt.format(f.n) +
+        " respuestas · pulsa para filtrar") + '"><span class="bl">' + etq(dim, f.v) +
+        '</span><span class="bv">' + fmt.format(f.n) + '</span><span class="btrack">' +
+        '<i class="bfill" style="width:' + (100 * f.n / max) + "%;background:" +
+        (sel ? "var(--na-1)" : "var(--az-4)") + ';"></i></span></div>';
+    });
+    if (difuminadas) h += '<p class="ph-note" style="margin:9px 0 0">' + fmt.format(difuminadas) +
+      " respuestas no tienen este dato registrado y quedan fuera del gráfico.</p>";
+    return h + "</div>" + (op.lectura ? '<div class="lectura">' + op.lectura + "</div>" : "") + "</div>";
+  }
+
+  /* ── Serie temporal ──────────────────────────────────────────────────── */
+  /* El segundo argumento de distrib/escala es la dimensión que se IGNORA, y
+     aquí tiene que ser null: panelSerie fija año y ola antes de cada llamada,
+     y pasar "anio" cancelaba justo el año que se acaba de fijar. El resultado
+     era que los cinco puntos de cada línea salían idénticos y el panel de
+     evolución dibujaba una recta plana, escondiendo que la empleabilidad al año
+     pasó de 35,3 % en 2022 a 63,9 % en 2023. */
+  const METRICAS = [
+    { id: "empleabilidad", n: "Con actividad económica",
+      get: () => { const p = pctCat(distrib("situacion_laboral", null), "Sin actividad laboral");
+        return p ? { v: 100 - p.pct, base: p.base } : null; } },
+    { id: "seis", n: "Empleo en ≤6 meses",
+      get: () => { const p = pctCat(distrib("tiempo_primer_empleo", null), "0 a 6 meses");
+        return p ? { v: p.pct, base: p.base } : null; } },
+    { id: "afin", n: "Empleo afín a la profesión",
+      get: () => { const r = escala("pertinencia_empleo", null);
+        return r ? { v: r.alta, base: r.tot } : null; } },
+    { id: "fijo", n: "Contrato fijo",
+      get: () => { const p = pctCat(distrib("tipo_contrato", null), "Fijo");
+        return p ? { v: p.pct, base: p.base } : null; } }
+  ];
+
+  function panelSerie() {
+    const m = METRICAS.find(x => x.id === state.metrica);
+    const anios = DICT.anio.filter(a => a !== VACIO).sort();
+    const olas = olasCronologicas();
+    let h = '<div class="panel"><div class="ph"><h4>Evolución por año de encuesta</h4>' +
+      infoIcon("Una línea por momento de la trayectoria. Mezclarlos haría que el indicador subiera " +
+        "o bajara sólo porque cambia a quién se encuestó ese año: cada año se encuesta a promociones " +
+        "distintas en momentos distintos. Cada punto es una promoción, no el seguimiento de las " +
+        "mismas personas.") + "</div>" +
+      '<div class="segbtns">' + METRICAS.map(x => '<button type="button" class="segbtn' +
+        (x.id === state.metrica ? " on" : "") + '" data-metrica="' + x.id + '">' + x.n + "</button>").join("") +
+      "</div>";
+
+    const guarda = { ...state.f };
+    const series = [];
+    olas.forEach(ola => {
+      const pts = [];
+      anios.forEach(an => {
+        state.f = { ...guarda, anio: DICT.anio.indexOf(an), ola: DICT.ola.indexOf(ola) };
+        const r = m.get();
+        if (r && r.base >= UMBRAL) pts.push({ x: an, v: r.v, base: r.base });
+      });
+      if (pts.length >= 2) series.push({ ola, pts });
+    });
+    state.f = guarda;
+    if (!series.length) return h + vacio("No hay suficientes años con datos publicables para " +
+      "dibujar una tendencia de este indicador con los filtros aplicados.") + "</div>";
+
+    h += '<div class="legend">' + series.map(s => '<span><i style="background:' + COLOR_OLA[s.ola] +
+      '"></i>' + s.ola + "</span>").join("") + "</div>";
+    const xs = anios.filter(a => series.some(s => s.pts.some(p => p.x === a)));
+    const W = 640, H = 250, ml = 42, mr = 52, top = 16, bot = 34;
+    const px = a => ml + xs.indexOf(a) * ((W - ml - mr) / Math.max(1, xs.length - 1));
+    const maxV = Math.min(100, Math.max(...series.flatMap(s => s.pts.map(p => p.v))) * 1.18 + 4);
+    const py = v => top + (1 - v / maxV) * (H - top - bot);
+    let s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Evolución del indicador por año">';
+    const paso = maxV > 60 ? 20 : 10;
+    for (let g = 0; g <= maxV; g += paso) {
+      s += '<line x1="' + ml + '" y1="' + py(g) + '" x2="' + (W - mr) + '" y2="' + py(g) +
+        '" stroke="var(--edge)"/><text x="' + (ml - 7) + '" y="' + (py(g) + 4) +
+        '" text-anchor="end" font-size="10.5" fill="var(--ink3)">' + g + "%</text>";
+    }
+    xs.forEach(a => { s += '<text x="' + px(a) + '" y="' + (H - bot + 19) + '" text-anchor="middle" ' +
+      'font-size="12" font-weight="700" fill="var(--ink)" class="xa" style="cursor:pointer" ' +
+      'data-dim="anio" data-k="' + DICT.anio.indexOf(a) + '" data-t="' +
+      esc("Pulsa para filtrar por " + a) + '">' + a + "</text>"; });
+    series.forEach(se => {
+      const col = COLOR_OLA[se.ola];
+      s += '<polyline points="' + se.pts.map(p => px(p.x) + "," + py(p.v)).join(" ") +
+        '" fill="none" stroke="' + col + '" stroke-width="2.5" stroke-linejoin="round"/>';
+      se.pts.forEach(p => { s += '<circle cx="' + px(p.x) + '" cy="' + py(p.v) + '" r="4.5" fill="' +
+        col + '" stroke="#fff" stroke-width="2" data-t="' + esc("<b>" + se.ola + " · " + p.x + "</b>" +
+        pct1(p.v) + " · base " + fmt.format(p.base)) + '"/>'; });
+      const z = se.pts[se.pts.length - 1];
+      s += '<text x="' + (px(z.x) + 9) + '" y="' + (py(z.v) + 4) + '" font-size="12" font-weight="700" fill="' +
+        col + '">' + pct1(z.v) + "</text>";
+    });
+    h += s + "</svg>";
+    const larga = series.reduce((a, b) => b.pts.length > a.pts.length ? b : a);
+    const d = larga.pts[larga.pts.length - 1].v - larga.pts[0].v;
+    h += '<div class="lectura">' + m.n + " <b>" + larga.ola.toLowerCase() + "</b>: " +
+      pct1(larga.pts[0].v) + " en " + larga.pts[0].x + " → " + pct1(larga.pts[larga.pts.length - 1].v) +
+      " en " + larga.pts[larga.pts.length - 1].x + " (" + (d >= 0 ? "+" : "") +
+      pct1(d).replace("%", "") + " puntos). Pulsa un año para filtrar el tablero.</div></div>";
+    return h;
+  }
+
+  /* ── Trayectoria ─────────────────────────────────────────────────────── */
+  function panelTrayectoria() {
+    const olas = olasCronologicas();
+    let h = '<div class="panel"><div class="ph"><h4>Situación laboral a lo largo de la trayectoria</h4>' +
+      infoIcon(catInfo.situacion_laboral.nota) + "</div>";
+    const guarda = { ...state.f };
+    const puntos = [];
+    olas.forEach(ola => {
+      state.f = { ...guarda, ola: DICT.ola.indexOf(ola) };
+      const dd = distrib("situacion_laboral", null);
+      if (dd && dd.base >= UMBRAL) {
+        const filas = [...dd.m.entries()].map(([k, n]) => ({ cat: D.categorias[k], n, pct: 100 * n / dd.base }))
+          .filter(f => f.n >= UMBRAL);
+        if (filas.length) puntos.push({ ola, filas, base: dd.base });
+      }
+    });
+    state.f = guarda;
+    if (!puntos.length) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    const cats = []; puntos.forEach(p => p.filas.forEach(f => { if (!cats.includes(f.cat)) cats.push(f.cat); }));
+    h += '<p class="ph-note">' + puntos.map(p => p.ola + ": " + fmt.format(p.base)).join(" · ") +
+      ' respuestas</p><div class="legend">' + cats.map(c => '<span><i style="background:' +
+      (COLOR_SIT[c] || "var(--ink3)") + '"></i>' + c + "</span>").join("") + "</div>";
+
+    if (puntos.length === 1) {
+      const p = puntos[0];
+      h += '<div class="bars">';
+      p.filas.slice().sort((a, b) => b.pct - a.pct).forEach(f => {
+        h += '<div class="brow" data-t="' + esc(f.cat + ": " + fmt.format(f.n)) + '"><span class="bl">' +
+          f.cat + '</span><span class="bv">' + pct1(f.pct) + '</span><span class="btrack">' +
+          '<i class="bfill" style="width:' + f.pct + "%;background:" + (COLOR_SIT[f.cat] || "var(--ink3)") +
+          ';"></i></span></div>';
+      });
+      return h + '</div><div class="lectura">Sólo <b>' + p.ola.toLowerCase() + "</b> supera el mínimo " +
+        "publicable con estos filtros, así que no se dibuja la evolución: una pendiente sobre un solo " +
+        "punto sugeriría una tendencia que el dato no sostiene.</div></div>";
+    }
+    const W = 880, H = 250, mx = 145, top = 20, bot = 40;
+    const px = i => mx + i * ((W - 2 * mx) / (puntos.length - 1));
+    const maxV = Math.max(...puntos.flatMap(p => p.filas.map(f => f.pct)), 10);
+    const py = v => top + (1 - v / (maxV * 1.12)) * (H - top - bot);
+    let s = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Evolución de la situación laboral">';
+    puntos.forEach((p, i) => {
+      s += '<line x1="' + px(i) + '" y1="' + top + '" x2="' + px(i) + '" y2="' + (H - bot) +
+        '" stroke="var(--edge)"/><text x="' + px(i) + '" y="' + (H - bot + 19) +
+        '" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--ink)" class="xa" ' +
+        'style="cursor:pointer" data-dim="ola" data-k="' + DICT.ola.indexOf(p.ola) + '" data-t="' +
+        esc("Pulsa para filtrar por «" + p.ola + "»") + '">' + p.ola + "</text>" +
+        '<text x="' + px(i) + '" y="' + (H - bot + 33) + '" text-anchor="middle" font-size="10.5" ' +
+        'fill="var(--ink3)">n = ' + fmt.format(p.base) + "</text>";
+    });
+    const izq = [], der = [];
+    cats.forEach(c => {
+      const col = COLOR_SIT[c] || "var(--ink3)";
+      const pts = puntos.map((p, i) => { const f = p.filas.find(x => x.cat === c);
+        return f ? { x: px(i), y: py(f.pct), v: f.pct, n: f.n, ola: p.ola, base: p.base } : null; }).filter(Boolean);
+      if (pts.length < 2) return;
+      s += '<polyline points="' + pts.map(p => p.x + "," + p.y).join(" ") + '" fill="none" stroke="' +
+        col + '" stroke-width="2.5" stroke-linejoin="round"/>';
+      pts.forEach(p => { s += '<circle cx="' + p.x + '" cy="' + p.y + '" r="5" fill="' + col +
+        '" stroke="#fff" stroke-width="2" data-t="' + esc("<b>" + c + "</b>" + p.ola + ": " + pct1(p.v) +
+        " (" + fmt.format(p.n) + " de " + fmt.format(p.base) + ")") + '"/>'; });
+      izq.push({ x: pts[0].x - 11, y: pts[0].y, t: pct1(pts[0].v), c: col });
+      der.push({ x: pts[pts.length - 1].x + 11, y: pts[pts.length - 1].y, t: pct1(pts[pts.length - 1].v), c: col });
+    });
+    const sep = (L, g) => { L.sort((a, b) => a.y - b.y);
+      for (let i = 1; i < L.length; i++) if (L[i].y - L[i - 1].y < g) L[i].y = L[i - 1].y + g; return L; };
+    sep(izq, 14).forEach(l => s += '<text x="' + l.x + '" y="' + (l.y + 4) + '" text-anchor="end" font-size="12" font-weight="700" fill="' + l.c + '">' + l.t + "</text>");
+    sep(der, 14).forEach(l => s += '<text x="' + l.x + '" y="' + (l.y + 4) + '" text-anchor="start" font-size="12" font-weight="700" fill="' + l.c + '">' + l.t + "</text>");
+    h += s + "</svg>";
+    const a = puntos[0].filas.find(x => x.cat === "Sin actividad laboral");
+    const z = puntos[puntos.length - 1].filas.find(x => x.cat === "Sin actividad laboral");
+    if (a && z) h += '<div class="lectura">Sin actividad laboral: <b>' + pct1(a.pct) + "</b> " +
+      puntos[0].ola.toLowerCase() + " → <b>" + pct1(z.pct) + "</b> " +
+      puntos[puntos.length - 1].ola.toLowerCase() + ". Pulsa un momento para filtrar el tablero.</div>";
+    return h + "</div>";
+  }
+
+  /* ── Escalas ─────────────────────────────────────────────────────────── */
+  function franja(n, tot) {
+    let h = '<div class="strip">';
+    for (let i = 0; i < 7; i++) {
+      const p = 100 * n[i] / tot; if (p <= 0) continue;
+      h += '<i style="flex:' + p + ";background:" + SEQ[i] + '" data-t="' +
+        esc("<b>" + D.escala.etiqueta[i] + " (" + (i + 1) + ")</b>" + fmt.format(n[i]) +
+          " respuestas · " + pct1(p)) + '"></i>';
+    }
+    return h + "</div>";
+  }
+  /** Competencia por competencia: qué adquirió realmente el graduado.
+      El promedio del bloque esconde lo único accionable — que el idioma está
+      cincuenta puntos por debajo del resto. */
+  function panelCompetenciasDetalle(bloque, titulo, nota) {
+    if (hayFi()) return '<div class="panel"><div class="ph"><h4>' + titulo + "</h4>" +
+      infoIcon(nota) + "</div>" + fueraDelCruce("El detalle competencia por competencia") + "</div>";
+    const acc = new Map();
+    for (const r of COMP) {
+      if (!pasa(r, null)) continue;
+      const k = r[ND];
+      if (D.competencias_bloque[k] !== bloque) continue;
+      const a = acc.get(k) || { alta: 0, tot: 0 };
+      a.alta += r[ND + 1]; a.tot += r[ND + 2]; acc.set(k, a);
+    }
+    let h = '<div class="panel"><div class="ph"><h4>' + titulo + "</h4>" + infoIcon(nota) + "</div>";
+    let filas = [...acc.entries()].filter(([, a]) => a.tot >= UMBRAL)
+      .map(([k, a]) => ({ nom: D.competencias[k], pct: 100 * a.alta / a.tot, tot: a.tot }))
+      .sort((x, y) => y.pct - x.pct);
+    if (!filas.length) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    const recorte = filas.length > 12;
+    if (recorte) filas = filas.slice(0, 6).concat(filas.slice(-6));
+    h += '<p class="ph-note">% que responde 6 o 7 · ordenadas de mayor a menor' +
+      (recorte ? " · se muestran las 6 mejor y las 6 peor valoradas" : "") + "</p>";
+    h += '<div class="bars">';
+    filas.forEach((f, i) => {
+      const corte = recorte && i === 6;
+      if (corte) h += '<div style="border-top:1px dashed var(--edge2);margin:4px 0 2px"></div>';
+      const col = f.pct >= 80 ? "var(--az-2)" : f.pct >= 65 ? "var(--az-4)" : "var(--na-1)";
+      h += '<div class="brow" data-t="' + esc("<b>" + f.nom + "</b>" + pct1(f.pct) +
+        " de alta valoración · " + fmt.format(f.tot) + " respuestas") + '"><span class="bl">' +
+        f.nom + '</span><span class="bv">' + pct1(f.pct) + '</span><span class="btrack">' +
+        '<i class="bfill" style="width:' + f.pct + "%;background:" + col + ';"></i></span></div>';
+    });
+    h += "</div>";
+    const peor = filas[filas.length - 1];
+    h += '<div class="lectura">La competencia peor valorada es <b>' + peor.nom.toLowerCase() +
+      "</b>, con " + pct1(peor.pct) + " frente al " + pct1(filas[0].pct) + " de la mejor valorada. " +
+      "Ahí es donde una revisión curricular tendría más efecto.</div>";
+    return h + "</div>";
+  }
+
+  function panelCompetencias() {
+    const g = escala("competencias_generales", null), e = escala("competencias_especificas", null);
+    let h = '<div class="panel"><div class="ph"><h4>Competencias adquiridas</h4>' +
+      infoIcon("Escala 1 a 7; se reporta el % que responde 6 o 7. Comparar generales con específicas " +
+        "muestra dónde la formación se percibe más sólida.") + "</div>";
+    if (!g && !e) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    h += '<p class="ph-note">% que responde 6 o 7 en la escala institucional de 1 a 7</p>';
+    [["competencias_generales", g], ["competencias_especificas", e]].forEach(([id, r]) => {
+      if (!r) return;
+      h += '<div class="escrow"><div class="top"><span class="nm">' + catInfo[id].titulo +
+        '</span><span class="fig">' + pct1(r.alta) + "</span></div>" + franja(r.n, r.tot) +
+        '<div class="strip-legend"><span>1 · Mínimo</span><span>' + fmt.format(r.tot) +
+        " valoraciones</span><span>Máximo · 7</span></div></div>";
+    });
+    if (g && e) { const d = e.alta - g.alta;
+      h += '<div class="lectura">Las específicas se valoran <b>' + pct1(Math.abs(d)).replace("%", "") +
+        " puntos " + (d >= 0 ? "por encima" : "por debajo") + "</b> de las generales. Una brecha a favor " +
+        "de las específicas señala una formación técnica sólida con margen en las competencias " +
+        "transversales, que es donde suelen apoyarse los ascensos.</div>"; }
+    return h + "</div>";
+  }
+  function panelPertinencia() {
+    const r = escala("pertinencia_empleo", null);
+    let h = '<div class="panel"><div class="ph"><h4>Relación entre el empleo y la profesión</h4>' +
+      infoIcon(catInfo.pertinencia_empleo.nota) + "</div>";
+    if (!r) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    const med = Math.max(0, 100 - r.alta - r.baja);
+    h += '<p class="ph-note">Base: ' + fmt.format(r.tot) + " respuestas</p>" +
+      '<div class="legend"><span><i style="background:var(--na-1)"></i>Baja (1–2)</span>' +
+      '<span><i style="background:var(--ink4)"></i>Intermedia (3–5)</span>' +
+      '<span><i style="background:var(--az-2)"></i>Alta (6–7)</span></div>' +
+      '<div class="div-bar" style="height:30px">' +
+      seg(r.baja, "var(--na-1)", "baja (1–2)", r.n[0] + r.n[1], r.tot) +
+      seg(med, "var(--ink4)", "intermedia (3–5)", r.n[2] + r.n[3] + r.n[4], r.tot) +
+      seg(r.alta, "var(--az-2)", "alta (6–7)", r.n[5] + r.n[6], r.tot) + "</div>";
+    h += '<div class="lectura">Distribución <b>bimodal</b>: ' + pct1(r.alta) + " ejerce su profesión y " +
+      pct1(r.baja) + " no la ejerce en absoluto, con poca gente en medio. Por eso se reportan los dos " +
+      "extremos y no el promedio, que caería en el valle vacío describiendo a un graduado que casi no existe.</div>";
+    return h + "</div>";
+    function seg(p, col, etiq, n, tot) {
+      if (p <= 0) return "";
+      return '<i style="flex:' + p + ";background:" + col + '" data-t="' +
+        esc("<b>Relación " + etiq + "</b>" + pct1(p) + " · " + fmt.format(n) + " de " + fmt.format(tot)) +
+        '">' + (p >= 10 ? pct1(p) : "") + "</i>";
+    }
+  }
+
+
+  /* Sexo con los símbolos ♀ ♂ que ya usa Perfil Estudiantil, para que las dos
+     pestañas se lean igual. */
+  function panelSexo() {
+    const m = porDim("sexo");
+    if (!m) return '<div class="panel"><div class="ph"><h4>Respuestas por sexo</h4></div>' +
+      fueraDelCruce("El sexo") + "</div>";
+    const iM = DICT.sexo.indexOf("MUJER"), iH = DICT.sexo.indexOf("HOMBRE");
+    const nM = m.get(iM) || 0, nH = m.get(iH) || 0, tot = nM + nH;
+    let h = '<div class="panel"><div class="ph"><h4>Respuestas por sexo</h4>' +
+      infoIcon("Reparto por sexo de las respuestas recibidas. Se calcula sólo sobre quienes " +
+        "tienen este dato registrado. Pulsa un bloque para filtrar el tablero.") + "</div>";
+    if (tot < UMBRAL) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    const sinDato = [...m.entries()].filter(([k]) => k !== iM && k !== iH)
+      .reduce((s, [, n]) => s + n, 0);
+    h += '<p class="ph-note">Sobre ' + fmt.format(tot) + " respuestas con sexo registrado</p>" +
+      '<div class="sexsplit">' +
+      bloqueSexo("♀", "Mujeres", nM, tot, iM, "var(--az-3)") +
+      bloqueSexo("♂", "Hombres", nH, tot, iH, "var(--na-1)") + "</div>";
+    if (sinDato) h += '<p class="ph-note" style="margin:10px 0 0">' + fmt.format(sinDato) +
+      " respuestas más no tienen el sexo registrado y quedan fuera de este porcentaje.</p>";
+    return h + "</div>";
+    function bloqueSexo(sim, etiqueta, n, tot, k, col) {
+      const sel = state.f.sexo === k;
+      return '<button type="button" class="sexbox' + (sel ? " sel" : "") + '" data-dim="sexo" data-k="' +
+        k + '" data-t="' + esc("<b>" + etiqueta + "</b>" + fmt.format(n) + " respuestas · " +
+        pct1(100 * n / tot) + " · pulsa para filtrar") + '">' +
+        '<span class="sexsim" style="color:' + col + '">' + sim + "</span>" +
+        '<span class="sextxt"><span class="sexn">' + fmt.format(n) + "</span>" +
+        '<span class="sexp">' + pct1(100 * n / tot) + " " + etiqueta + "</span></span></button>";
+    }
+  }
+
+  /* ── Cobertura ───────────────────────────────────────────────────────── */
+  function panelCobertura() {
+    const rs = D.cobertura.filter(r => r.dimension === "carrera").sort((a, b) => b.tasa - a.tasa);
+    let h = '<div class="panel"><div class="ph"><h4>Tasa de respuesta por carrera</h4>' +
+      infoIcon("Graduados encuestados sobre el total de titulados de esa carrera, cohortes " +
+        META.cohortes[0] + "–" + META.cohortes[META.cohortes.length - 1] + ". Es la medida de cuánto " +
+        "representa cada cifra: una carrera con baja participación aporta menos certeza. " +
+        "La promoción de " + META.cohortes_pendientes.join(", ") + " no entra: su encuesta sigue " +
+        "abierta y todavía no ha podido responder nadie.") + "</div>" +
+      '<div class="bars">';
+    const iCar = DICT.carrera;
+    // Una tasa sobre menos de UMBRAL encuestados no se publica como cifra: con
+    // 3 respuestas el intervalo de confianza va de 1,7 % a 13,5 %, mas ancho
+    // que la distancia entre dos carreras cualquiera. La fila se conserva
+    // -- que una carrera este sin medir es justo lo que hay que ver -- pero se
+    // muestran los conteos, no un punto que aparenta una precision inexistente.
+    let flojas = 0;
+    rs.forEach(r => {
+      const k = iCar.indexOf(r.corte), sel = state.f.carrera === k;
+      const firme = r.encuestados >= UMBRAL;
+      if (!firme) flojas++;
+      h += '<div class="brow' + (sel ? " sel" : "") + (firme ? "" : " mut") + '"' +
+        (k >= 0 ? ' data-dim="carrera" data-k="' + k + '"' : "") +
+        ' data-t="' + esc("<b>" + r.corte + "</b>" + fmt.format(r.encuestados) + " encuestados de " +
+        fmt.format(r.titulados) + " titulados" + (firme ? "" :
+          "<br>Base insuficiente para publicar una tasa (menos de " + UMBRAL + " respuestas)")) +
+        '"><span class="bl">' + r.corte + '</span><span class="bv">' +
+        (firme ? pct1(r.tasa) : fmt.format(r.encuestados) + " de " + fmt.format(r.titulados)) +
+        '</span><span class="btrack">' +
+        '<i class="bfill" style="width:' + (firme ? r.tasa : 0) + "%;background:" +
+        (sel ? "var(--na-1)" : "var(--az-4)") + ';"></i></span></div>';
+    });
+    if (flojas) h += '<p class="ph-note" style="margin:9px 0 0">En las carreras en gris ' +
+      "respondieron muy pocos graduados como para calcular un porcentaje fiable, así que se " +
+      "muestra el conteo.</p>";
+    return h + '</div><div class="lectura">La participación es desigual, así que <b>los totales de ' +
+      "facultad pesan más hacia las carreras que más respondieron</b>. Para comparar, leer cada carrera " +
+      "en su propia fila.</div></div>";
+  }
+
+  /* ── KPIs ────────────────────────────────────────────────────────────── */
+  function kpi(l, v, base, color, barra, nota, icono, unidad) {
+    const cab = '<span class="lbl"><span class="kicow" style="color:' + color + '">' +
+      ico(icono || "diana") + "</span>" + l + (nota ? infoIcon(nota) : "") + "</span>";
+    if (v == null) return '<div class="kpi na">' + cab +
+      '<span class="val">Sin dato</span><span class="base">No publicable con estos filtros</span></div>';
+    return '<div class="kpi">' + cab + '<span class="val" style="color:' + color + '">' + v +
+      '</span><span class="bar"><i style="width:' + Math.min(100, barra) + "%;background:" + color +
+      '"></i></span><span class="base">Base: ' + fmt.format(base) + " " +
+      (unidad || "respuestas") + "</span></div>";
+  }
+  /* Cinco tarjetas por pestaña, distintas en cada una: lo que un evaluador
+     externo mira primero cambia según lo que esté evaluando. */
+  const KPIS = {
+    trayectoria: () => {
+      const c = conteo(null);
+      const sin = pctCat(distrib("situacion_laboral", null), "Sin actividad laboral");
+      const seis = pctCat(distrib("tiempo_primer_empleo", null), "0 a 6 meses");
+      const per = escala("pertinencia_empleo", null);
+      const car = state.f.carrera != null ? DICT.carrera[state.f.carrera] : null;
+      const cob = car ? D.cobertura.find(r => r.dimension === "carrera" && r.corte === car)
+        // El numerador es encuestados_en_universo (6.476), no graduados (6.507):
+        // 31 encuestados no tienen inscripcion en la base de estudiantes, asi que
+        // no hay registro de titulacion suyo y no pertenecen al denominador. Con
+        // META.graduados la tasa global no cuadraba con la suma de sus propias
+        // filas por carrera.
+        : { tasa: 100 * META.encuestados_en_universo / META.titulados_universo,
+            encuestados: META.encuestados_en_universo, titulados: META.titulados_universo };
+      return [
+        kpi("Empleabilidad", sin ? pct1(100 - sin.pct) : null, sin && sin.base, "var(--az-2)",
+          sin ? 100 - sin.pct : 0,
+          "Proporción de graduados con alguna fuente de ingreso: empleo, honorarios " +
+          "profesionales o negocio propio. Se pregunta al año y a los dos años de titularse.",
+          "maletin"),
+        kpi("Inserción en 6 meses o menos", seis ? pct1(seis.pct) : null, seis && seis.base,
+          "var(--az-4)", seis ? seis.pct : 0, catInfo.tiempo_primer_empleo.nota, "reloj"),
+        kpi("Empleo afín a la profesión", per ? pct1(per.alta) : null, per && per.tot,
+          "var(--az-3)", per ? per.alta : 0, catInfo.pertinencia_empleo.nota, "diana"),
+        kpiPlano("Cobertura del seguimiento", cob ? pct1(cob.tasa) : "—",
+          cob ? fmt.format(cob.encuestados) + " de " + fmt.format(cob.titulados) + " titulados" : "",
+          "var(--na-1)",
+          "Qué proporción de los titulados llegó a responder la encuesta. Indica cuánto " +
+          "representan las demás cifras del tablero: cuanto más alta, más confianza. " +
+          "La promoción de " + META.cohortes_pendientes.join(", ") + " no se cuenta todavía, " +
+          "porque su encuesta sigue abierta y aún no ha podido responder.", "lupa"),
+        kpiPlano("Respuestas a encuestas", fmt.format(c.obs),
+          hayFiltro() ? "Cada encuesta cuenta por separado"
+                      : "de " + fmt.format(META.graduados) + " graduados distintos",
+          "var(--az-1)",
+          "Número de encuestas contestadas. Quien respondió al año y a los dos años cuenta " +
+          "dos veces, porque son dos momentos distintos de su trayectoria. En total son " +
+          fmt.format(META.graduados) + " graduados distintos.", "personas")
+      ].join("");
+    },
+    empleo: () => {
+      const fijo = pctCat(distrib("tipo_contrato", null), "Fijo");
+      const sal = distrib("tramo_salarial", null);
+      const jer = distrib("rango_jerarquico", null);
+      const sec = distrib("sector_economico", null);
+      const sin = pctCat(distrib("situacion_laboral", null), "Sin actividad laboral");
+      const sobreSBU = sal ? 100 - (pctCat(sal, "<=SBU") || { pct: 0 }).pct : null;
+      const mandos = jer ? (pctCat(jer, "Supervisión y mandos medios") || { pct: 0 }).pct +
+        (pctCat(jer, "Directivo / gerencial") || { pct: 0 }).pct : null;
+      const terc = sec ? pctCat(sec, "Terciario: comercio y servicios") : null;
+      return [
+        kpi("Contrato fijo", fijo ? pct1(fijo.pct) : null, fijo && fijo.base, "var(--az-2)",
+          fijo ? fijo.pct : 0, catInfo.tipo_contrato.nota, "contrato"),
+        kpi("Salario por encima del básico", sobreSBU != null ? pct1(sobreSBU) : null,
+          sal && sal.base, "var(--az-3)", sobreSBU || 0,
+          "Proporción que declara un tramo salarial superior al salario básico unificado. " +
+          "Complemento del panel de tramos: resume en una cifra si la inserción es de subsistencia.", "moneda"),
+        kpi("En supervisión o dirección", mandos != null ? pct1(mandos) : null, jer && jer.base,
+          "var(--az-4)", mandos || 0,
+          "Suma de mandos medios y cargos directivos. Es el indicador de progresión: crece con " +
+          "los años desde la titulación, así que conviene leerlo filtrando por momento.", "escalera"),
+        kpi("Trabaja en el sector terciario", terc ? pct1(terc.pct) : null, sec && sec.base,
+          "var(--az-5)", terc ? terc.pct : 0,
+          "Comercio y servicios. Una concentración muy alta indica poca diversificación del " +
+          "destino laboral de los graduados.", "edificio"),
+        kpi("Sin actividad laboral", sin ? pct1(sin.pct) : null, sin && sin.base, "var(--na-1)",
+          sin ? sin.pct : 0,
+          "Declara no tener ninguna fuente de ingreso. Es el complemento de la empleabilidad y " +
+          "el indicador que más baja con los años desde la titulación.", "alerta")
+      ].join("");
+    },
+    formacion: () => {
+      const g = escala("competencias_generales", null), e = escala("competencias_especificas", null);
+      const conv = pctCat(distrib("vinculo_unemi", null), "Ningún tipo de convenio");
+      const dd = distrib("medio_contratacion", null);
+      const bolsa = dd ? pctCat(dd, "Bolsa trabajo UNEMI") : null;
+      const pos = distrib("demanda_posgrado", null);
+      const maes = pos ? pctCat(pos, "Programa de maestría") : null;
+      return [
+        kpi("Competencias específicas", e ? pct1(e.alta) : null, e && e.tot, "var(--az-2)",
+          e ? e.alta : 0, catInfo.competencias_especificas.nota, "birrete", "valoraciones"),
+        kpi("Competencias generales", g ? pct1(g.alta) : null, g && g.tot, "var(--az-4)",
+          g ? g.alta : 0, catInfo.competencias_generales.nota, "libro", "valoraciones"),
+        kpi("Empleador con convenio UNEMI", conv ? pct1(100 - conv.pct) : null, conv && conv.base,
+          "var(--na-1)", conv ? 100 - conv.pct : 0, catInfo.vinculo_unemi.nota, "enlace"),
+        kpi("Empleo por la bolsa UNEMI", bolsa ? pct1(bolsa.pct) : null, dd && dd.base,
+          "var(--na-3)", bolsa ? bolsa.pct : 0,
+          "Graduados que consiguieron su empleo a través de la bolsa de trabajo institucional. " +
+          "Mide el uso real de un servicio que la universidad ya tiene montado.", "llave"),
+        kpi("Quiere cursar una maestría", maes ? pct1(maes.pct) : null, pos && pos.base,
+          "var(--az-3)", maes ? maes.pct : 0, catInfo.demanda_posgrado.nota, "birrete")
+      ].join("");
+    }
+  };
+  function kpiPlano(l, v, sub, color, nota, icono) {
+    return '<div class="kpi"><span class="lbl"><span class="kicow" style="color:' + color + '">' +
+      ico(icono || "diana") + "</span>" + l + infoIcon(nota) +
+      '</span><span class="val" style="color:' + color + '">' + v + '</span>' +
+      '<span class="base">' + sub + "</span></div>";
+  }
+  function renderKpis() {
+    document.getElementById("kpis").innerHTML = (KPIS[state.tab] || KPIS.trayectoria)();
+  }
+
+  /* ── Filtros y cabecera ──────────────────────────────────────────────── */
+  const FILTROS = ["anio", "ola", "carrera", "modalidad", "cohorte", "sexo"];
+  function construirFiltros() {
+    document.getElementById("filtros").innerHTML = FILTROS.map(d => {
+      const vals = DICT[d].map((v, i) => ({ v, i })).filter(x => x.v !== VACIO);
+      return '<div class="fld"><label for="f-' + d + '">' + ETQ[d] + '</label><select id="f-' + d +
+        '" data-dim="' + d + '"><option value="">Todos</option>' +
+        vals.map(x => '<option value="' + x.i + '">' + etq(d, x.v) + "</option>").join("") + "</select></div>";
+    }).join("");
+    document.querySelectorAll("#filtros select").forEach(s => s.addEventListener("change", () => {
+      const d = s.dataset.dim;
+      if (s.value === "") delete state.f[d]; else state.f[d] = +s.value;
+      render();
+    }));
+    document.getElementById("btnReset").addEventListener("click", () => {
+    state.fi = null; soltadas = []; state.f = {}; render(); });
+    const TABS = [["trayectoria", "Trayectoria"], ["empleo", "Condiciones del empleo"],
+                  ["formacion", "Formación y vinculación"]];
+    document.getElementById("tabs").innerHTML = TABS.map(([k, n]) =>
+      '<button type="button" class="tab" data-tab="' + k + '">' + n + "</button>").join("");
+    document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => {
+      state.tab = b.dataset.tab; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+  }
+  const ETQ = { anio: "Año de encuesta", ola: "Momento de la trayectoria", carrera: "Carrera",
+    modalidad: "Modalidad", cohorte: "Cohorte de titulación", sexo: "Sexo",
+    grupo_socioeconomico: "Grupo socioeconómico", rango_edad: "Edad de ingreso",
+    etnia: "Autoidentificación étnica" };
+
+  function renderCabecera() {
+    const claves = Object.keys(state.f);
+    const etqFi = hayFi() ? D.categorias[state.fi.cat] : null;
+    const nomFi = hayFi() ? (catInfo[D.indicadores[state.fi.ind]] || {}).titulo : null;
+    // La cabecera identifica al módulo y no se mueve al filtrar: es el punto de
+    // referencia estable. Lo que está filtrado se lee en los chips de abajo,
+    // que además se pueden quitar uno a uno.
+    document.getElementById("titulo").textContent = "Todos los graduados";
+    document.getElementById("subtitulo").textContent =
+      fmt.format(META.graduados) + " graduados de la facultad, seguidos al titularse, "
+      + "al año y a los dos años";
+    const car = state.f.carrera != null ? DICT.carrera[state.f.carrera] : null;
+    const cob = car && D.cobertura.find(r => r.dimension === "carrera" && r.corte === car);
+    const rb = document.getElementById("rateBox");
+    if (cob) { rb.hidden = false;
+      document.getElementById("rateN").textContent = pct1(cob.tasa);
+      document.getElementById("rateL").innerHTML = "de tasa de respuesta<br>" +
+        fmt.format(cob.encuestados) + " de " + fmt.format(cob.titulados) + " titulados"; }
+    else rb.hidden = true;
+    document.getElementById("chips").innerHTML =
+      (hayFi() ? '<button type="button" class="chip chip-resp" data-fi="1">' + nomFi + ": " +
+        etqFi + '<span class="x">×</span></button>' : "") +
+      claves.map(d =>
+        '<button type="button" class="chip" data-dim="' + d + '">' + ETQ[d] + ": " +
+        etq(d, DICT[d][state.f[d]]) + '<span class="x">×</span></button>').join("") +
+      "";
+    document.querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
+      if (b.dataset.fi) { state.fi = null; soltadas = []; }
+      else delete state.f[b.dataset.dim];
+      render(); }));
+    // Los filtros que el cruce no arrastra se inhabilitan mientras haya un
+    // filtro de respuesta, en vez de dejarlos activos sin efecto real.
+    FILTROS.forEach(d => { const s = document.getElementById("f-" + d);
+      if (!s) return;
+      s.value = state.f[d] != null ? String(state.f[d]) : "";
+      const bloqueado = hayFi();
+      s.disabled = bloqueado;
+      s.closest(".fld").classList.toggle("off", bloqueado);
+      s.title = bloqueado ? "No se puede combinar con un filtro de respuesta" : "";
+    });
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === state.tab));
+  }
+
+  /* ── Vistas ──────────────────────────────────────────────────────────── */
+  /* Los paneles de Trayectoria dibujan DIMENSIONES (carrera, momento, sexo,
+     grupo socioeconómico), y por eso sus barras filtran todo el tablero. Los de
+     las otras dos pestañas dibujan RESULTADOS (tipo de contrato, tramo salarial,
+     competencias): no son ejes de agregación del archivo publicado, así que no
+     hay nada por lo que filtrar. Se avisa una vez por pestaña en vez de dejar
+     que el usuario descubra a fuerza de clics que ahí no pasa nada. */
+  const VISTAS = {
+    trayectoria: () =>
+      '<div class="grid2 wide-left">' + panelSerie() +
+        panelDim("carrera", "Respuestas por carrera",
+          "Número de respuestas a encuestas de cada carrera, no de graduados titulados. " +
+          "Pulsa una barra para filtrar todo el tablero por esa carrera.",
+          { lectura: "Las carreras pequeñas dejarán paneles sin datos publicables al cruzarlas " +
+            "con otros filtros." }) +
+      "</div>" + panelTrayectoria() +
+      '<div class="grid3">' + panelDim("ola", "Respuestas por momento",
+          "Cada graduado se encuesta en tres momentos: al titularse, un año después y dos " +
+          "años después. Aquí se ve cuántas respuestas llegaron en cada uno.", { orden: ORDEN_OLA }) +
+        panelSexo() +
+        panelDim("grupo_socioeconomico", "Respuestas por grupo socioeconómico",
+          "Origen socioeconómico registrado al ingresar a la carrera. Cruzado con el tramo salarial " +
+          "es la lectura de movilidad social del módulo.") + "</div>",
+    empleo: () => '<div class="grid2">' +
+      panelCat("tiempo_primer_empleo", { color: "var(--az-3)" }) +
+      panelCat("tramo_salarial", { color: "var(--az-4)" }) +
+      panelCat("tipo_contrato", { color: "var(--az-3)" }) +
+      panelCat("rango_jerarquico", { color: "var(--az-4)" }) + "</div>" +
+      '<div class="grid2">' + panelCat("sector_economico", { color: "var(--az-5)" }) +
+      panelCat("situacion_laboral", { color: "var(--az-2)" }) + "</div>",
+    formacion: () => '<div class="grid2">' + panelPertinencia() + panelCompetencias() + "</div>" +
+      '<div class="grid2">' +
+      panelCompetenciasDetalle("Competencias generales", "Competencias generales adquiridas",
+        "Las competencias transversales que la encuesta pregunta una por una, comunes a todas las " +
+        "carreras. El promedio del bloque las aplana: aquí se ve cuál está fuerte y cuál no.") +
+      panelCompetenciasDetalle("Competencias específicas", "Competencias específicas adquiridas",
+        "Las competencias propias de cada carrera. Sin filtrar por carrera se mezclan las de todas, " +
+        "así que la lectura útil es elegir una carrera en el panel lateral.") + "</div>" +
+      '<div class="grid2">' + panelCat("canal_busqueda", { color: "var(--az-4)",
+          lectura: "Lo que los graduados <b>usan</b> para buscar empleo." }) +
+      panelCat("medio_contratacion", { color: "var(--na-3)",
+          lectura: "Lo que <b>funciona</b>. La distancia entre los dos paneles mide qué tan efectiva " +
+            "resulta cada vía, y dónde la universidad podría intervenir." }) + "</div>" +
+      '<div class="grid2">' + panelCat("vinculo_unemi", { color: "var(--az-3)" }) +
+      panelCat("demanda_posgrado", { color: "var(--az-4)" }) + "</div>" +
+      panelCobertura()
+  };
+
+  function render() {
+    renderCabecera(); renderKpis();
+    document.getElementById("vista").innerHTML = (VISTAS[state.tab] || VISTAS.trayectoria)();
+    document.querySelectorAll("[data-t]").forEach(e => conTip(e, e.dataset.t));
+    document.querySelectorAll("[data-dim][data-k]").forEach(e =>
+      e.addEventListener("click", () => fijar(e.dataset.dim, +e.dataset.k)));
+    document.querySelectorAll("[data-ind][data-cat]").forEach(e =>
+      e.addEventListener("click", () => fijarInd(+e.dataset.ind, +e.dataset.cat)));
+    document.querySelectorAll(".segbtn").forEach(b =>
+      b.addEventListener("click", () => { state.metrica = b.dataset.metrica; render(); }));
+  }
+
+  construirFiltros(); render();
+})();
+</script>
+</body>
+</html>

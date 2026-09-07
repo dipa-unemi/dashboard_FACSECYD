@@ -89,8 +89,8 @@
   a { color: inherit; }
 
   .app {
-    display: grid;
-    grid-template-columns: 272px 1fr;
+    display: flex;
+    flex-direction: column;
     min-height: calc(100vh - var(--topnav-h));
   }
 
@@ -133,45 +133,32 @@
     border: 0;
   }
 
-  /* ---------- Sidebar ---------- */
-  .sidebar {
+  /* ---------- Barra de filtros ---------- */
+  .filterbar {
     background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 28px 22px;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 36px;
     display: flex;
-    flex-direction: column;
-    gap: 28px;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
     position: sticky;
     top: var(--topnav-h);
-    height: calc(100vh - var(--topnav-h));
-    overflow-y: auto;
+    z-index: 30;
   }
-  .brand {
+  .filterbar-fields {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex: 1;
   }
-  .brand h1 {
-    font-family: var(--font-display);
-    font-size: 22px;
-    font-weight: 600;
-    line-height: 1.15;
-    margin: 0;
-    text-wrap: balance;
-  }
-
-  .filter-group {
+  .filterbar-fields .field { flex: 1 1 160px; max-width: 320px; }
+  .filterbar-actions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .filter-group h2 {
-    font-size: 10.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-muted);
-    font-weight: 600;
-    margin: 0;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-left: auto;
   }
   .field { display: flex; flex-direction: column; gap: 6px; }
   .field label {
@@ -280,29 +267,50 @@
   }
   .reset-link:hover { color: var(--ink); border-color: var(--ink-muted); }
 
+  /* En la barra de filtros, el hint del editor pasa a su propia línea
+     para no forzar el ancho de la fila cuando aparece. */
+  .filterbar .dash-toolbar-hint { flex-basis: 100%; }
+
   /* ---------- Main ---------- */
   .main {
-    padding: 32px 36px 60px;
+    padding: 14px 36px 60px;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 10px;
     min-width: 0;
   }
 
   .page-head {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    justify-content: flex-end;
+    align-items: center;
     gap: 20px;
     flex-wrap: wrap;
   }
-  .page-head h2 {
-    font-family: var(--font-display);
-    font-size: 26px;
-    font-weight: 600;
-    margin: 0;
-    text-wrap: balance;
+
+  /* Pestañas internas de Perfil Estudiantil: Académico / Sociodemográfico.
+     Los indicadores institucionales quedan arriba, fuera de ambas. */
+  .subtabs {
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
   }
+  .subtab {
+    appearance: none;
+    -webkit-appearance: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    padding: 9px 2px;
+    margin-bottom: -1px;
+    border-bottom: 2px solid transparent;
+  }
+  .subtab:hover { color: var(--ink); }
+  .subtab.on { color: var(--ink); border-bottom-color: var(--accent); }
   .page-head .head-right {
     display: flex;
     align-items: center;
@@ -350,6 +358,7 @@
   .btn-editor:hover { border-color: var(--accent); color: var(--accent); }
   .btn-editor.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .btn-editor.primary:hover { opacity: .92; color: var(--accent-ink); }
+  .btn-editor.small { padding: 5px 10px; font-size: 11.5px; gap: 5px; }
   .dash-toolbar-hint { font-size: 12px; color: var(--ink-muted); }
 
   /* Modal de exportación de diseño */
@@ -408,6 +417,55 @@
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     line-height: 1.1;
+  }
+  .kpi .value-pct {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    margin-top: 3px;
+  }
+  .kpi .value-split {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .kpi .value-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .kpi .value-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .kpi .value-item-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .kpi .value-item-num {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .kpi .value-item-pct {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi .value-item-label {
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   /* Cards */
@@ -474,11 +532,41 @@
   body.edit-mode .dcard:hover { outline-color: var(--accent); z-index: 2; }
   body.edit-mode .dcard.dragging { opacity: 0.65; z-index: 50; }
   body.edit-mode .drag-handle { user-select: none; }
+
+  /* Título de sección: un .dcard sin fondo/borde de tarjeta, solo un
+     encabezado -- se mueve y redimensiona igual que el resto en modo edición. */
+  .section-title {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px;
+  }
+  .section-title h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+  }
+  .kpi-inst-alert {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  body.edit-mode .dcard.section-title {
+    min-width: 160px;
+    min-height: 30px;
+  }
   body.edit-mode .card-head:active { cursor: grabbing; }
 
-  @media (max-width: 1180px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { position: relative; height: auto; }
+  @media (max-width: 900px) {
+    .filterbar { flex-direction: column; align-items: stretch; }
+    .filterbar-actions { margin-left: 0; justify-content: space-between; }
   }
 
   /* ---------- Chart primitives ---------- */
@@ -506,7 +594,39 @@
      disponible al redimensionar la tarjeta necesitan height:100% en vez de
      auto - el propio SVG (preserveAspectRatio por defecto) se encarga de no
      deformar el mapa, dejando espacio en blanco si la proporción no calza. */
-  svg.world-map, svg.ecuador-map { height: 100%; }
+  svg.world-map, svg.ecuador-map { height: 100%; cursor: grab; }
+  svg.world-map:active, svg.ecuador-map:active { cursor: grabbing; }
+  .map-wrap { overflow: hidden; touch-action: none; }
+  .map-reset-zoom {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 3;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 10px;
+    color: var(--ink-2);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .map-reset-zoom:hover { border-color: var(--accent); color: var(--accent); }
+  .map-period-block {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    background: var(--surface);
+    color: var(--ink-muted);
+    font-size: 13px;
+  }
   .bar-label {
     font-family: var(--font-body);
     font-size: 13px;
