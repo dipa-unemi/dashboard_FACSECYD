@@ -1242,12 +1242,12 @@
     document.getElementById("kpiGrid"),
     "facsecyd-dash-layout-kpi-v1",
     {
-      tituloIndicadores: { left:"15px",   top:"0px",  width:"1118px", height:"32px" },
-      kpiInscripciones:  { left:"83px",   top:"29px", width:"270px",  height:"164px" },
-      kpiDobleCarrera:   { left:"682px",  top:"34px", width:"275px",  height:"158px" },
-      kpiSexo:           { left:"377px",  top:"31px", width:"279px",  height:"162px" },
-      kpiDiscapacidad:   { left:"989px",  top:"36px", width:"279px",  height:"156px" },
-      kpiInternacional:  { left:"1290px", top:"35px", width:"257px",  height:"160px" }
+      tituloIndicadores: { left:"12px",  top:"0px",  width:"894px", height:"32px" },
+      kpiInscripciones:  { left:"66px",  top:"29px", width:"216px", height:"164px" },
+      kpiDobleCarrera:   { left:"546px", top:"34px", width:"220px", height:"158px" },
+      kpiSexo:           { left:"302px", top:"31px", width:"223px", height:"162px" },
+      kpiDiscapacidad:   { left:"791px", top:"36px", width:"223px", height:"156px" },
+      kpiInternacional:  { left:"1032px",top:"35px", width:"206px", height:"160px" }
     },
     { tituloIndicadores:36, kpiInscripciones:110, kpiDobleCarrera:110, kpiSexo:110, kpiDiscapacidad:110, kpiInternacional:110 }
   );
