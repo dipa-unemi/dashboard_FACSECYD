@@ -1,17 +1,19 @@
 // Navegación entre las vistas de nivel superior del dashboard.
-// Aislado de app.js a propósito: la vista "Rendimiento Académico" es un
-// dashboard independiente (rendimiento_academico.html) con su propio CSS/JS,
-// cargado dentro de un iframe para evitar cualquier choque de estilos o
-// nombres globales con el dashboard de Perfil Estudiantil.
+// Aislado de app.js a propósito: cada vista aparte de "Perfil Estudiantil"
+// es un dashboard independiente (su propio archivo .html con su propio
+// CSS/JS) cargado dentro de un iframe para evitar cualquier choque de
+// estilos o nombres globales con el dashboard de Perfil Estudiantil ni
+// entre sí. Los iframes se cargan de forma perezosa (recién al activar su
+// pestaña por primera vez) vía el atributo data-src.
 (function () {
   "use strict";
 
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".top-tab"));
-  var panels = {
-    perfil: document.getElementById("view-perfil"),
-    rendimiento: document.getElementById("view-rendimiento")
-  };
-  var frame = document.getElementById("rendimientoFrame");
+  var panels = {};
+  Array.prototype.slice.call(document.querySelectorAll(".view-panel")).forEach(function (panel) {
+    var key = panel.id.replace(/^view-/, "");
+    panels[key] = panel;
+  });
 
   function activate(view) {
     tabs.forEach(function (btn) {
@@ -22,7 +24,9 @@
     Object.keys(panels).forEach(function (key) {
       if (panels[key]) panels[key].hidden = key !== view;
     });
-    if (view === "rendimiento" && frame && !frame.getAttribute("src")) {
+    var panel = panels[view];
+    var frame = panel ? panel.querySelector("iframe[data-src]") : null;
+    if (frame && !frame.getAttribute("src")) {
       frame.setAttribute("src", frame.getAttribute("data-src"));
     }
   }
