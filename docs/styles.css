@@ -497,7 +497,17 @@
   /* Dashboard: lienzo de posición libre. Cada tarjeta vive en position:absolute
      con su propio left/top/width/height (calculados en JS - ver computeDefaultLayout
      y loadLayout), sin ataduras a filas ni columnas. */
-  .dash-grid-outer { overflow-x: auto; width: 100%; flex: none; }
+  /* Vista compacta: encoge todo el lienzo (KPIs y gráficos) al 75% para que
+     quepa más sin desplazarse tanto verticalmente a zoom de navegador 100%.
+     Usa el "zoom" nativo del navegador (no transform:scale) porque así el
+     ancho/alto que JS mide (offsetWidth/offsetHeight, usados por chartW()/
+     updateGridHeight()) ya vienen en la escala correcta y los gráficos no
+     quedan recortados. En modo edición se desactiva (vuelve a 100%) porque
+     el arrastre de tarjetas usa clientX/clientY de eventos de mouse, que
+     están en píxeles reales de pantalla y no en la escala del zoom -- con
+     el lienzo reducido, arrastrar se sentiría más lento que el cursor. */
+  .dash-grid-outer { overflow-x: auto; width: 100%; flex: none; zoom: 0.6; }
+  body.edit-mode .dash-grid-outer { zoom: 1; }
   .dash-grid { position: relative; width: 100%; }
   .dcard {
     position: absolute;
