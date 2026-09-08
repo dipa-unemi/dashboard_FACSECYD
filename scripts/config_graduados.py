@@ -272,6 +272,12 @@ INDICADORES = [
          nota="Cuánto se relaciona el trabajo actual del graduado con lo que estudió. Se "
               "muestran los dos extremos porque la mayoría o ejerce su profesión o no la "
               "ejerce, y hay poca gente en un punto intermedio."),
+    dict(id="malla_curricular", bloque="Pertinencia", clase="escala",
+         titulo="Malla curricular acorde a las expectativas",
+         patron=r"malla curricular",
+         nota="Si la malla curricular de su carrera estuvo acorde a las expectativas del "
+              "graduado durante su formación. Escala institucional 1 a 7; se reporta el % "
+              "que responde 6 o 7, igual que el resto de indicadores de escala del módulo."),
 
     # --- Vinculacion y prospectiva ---
     dict(id="vinculo_unemi", bloque="Vinculación", clase="categorica",

@@ -64,6 +64,10 @@ select:hover { border-color:var(--az-4); }
 .rate { display:flex; align-items:center; gap:9px; background:var(--paper3); border-radius:var(--r); padding:7px 13px; }
 .rate .n { font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--az-2); }
 .rate .l { font-size:10.5px; color:var(--ink3); line-height:1.25; max-width:135px; }
+.aviso-metod { display:flex; align-items:flex-start; gap:8px; background:var(--acento-lt);
+  border:1px solid var(--na-4); border-radius:var(--r); padding:8px 12px; margin-top:11px;
+  font-size:12px; color:#8a4400; line-height:1.4; }
+.aviso-metod svg { flex-shrink:0; width:15px; height:15px; margin-top:1px; }
 .chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
 .chip { display:inline-flex; align-items:center; gap:7px; background:var(--acento-lt);
   color:#8a4400; border:1px solid var(--na-4); border-radius:20px; padding:3px 6px 3px 11px;
@@ -201,6 +205,11 @@ svg { display:block; width:100%; height:auto; overflow:visible; }
         <div><h2 id="titulo">Todos los graduados</h2><p class="sub" id="subtitulo"></p></div>
         <div class="rate" id="rateBox" hidden><span class="n" id="rateN">—</span><span class="l" id="rateL"></span></div>
       </div>
+      <div class="aviso-metod"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+          stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Para un análisis correcto, filtra por <b>año de encuesta</b> y <b>momento de la trayectoria</b>: sin
+          estos dos filtros el tablero mezcla años y momentos distintos, lo que puede inflar las cifras.</span></div>
       <div class="chips" id="chips"></div>
       <div class="tabs" id="tabs"></div>
     </div>
@@ -856,6 +865,21 @@ svg { display:block; width:100%; height:auto; overflow:visible; }
         '">' + (p >= 10 ? pct1(p) : "") + "</i>";
     }
   }
+  /** Una sola pregunta de la encuesta ("¿La malla curricular... acorde a sus
+      expectativas?"), en el mismo formato de escala que competencias. */
+  function panelMallaCurricular() {
+    const r = escala("malla_curricular", null);
+    let h = '<div class="panel"><div class="ph"><h4>Malla curricular acorde a las expectativas</h4>' +
+      infoIcon(catInfo.malla_curricular.nota) + "</div>";
+    if (!r) return h + '<p class="ph-note">&nbsp;</p>' + vacio(cortoUmbral) + "</div>";
+    h += '<p class="ph-note">% que responde 6 o 7 en la escala institucional de 1 a 7 · Base: ' +
+      fmt.format(r.tot) + " respuestas</p>";
+    h += '<div class="escrow"><div class="top"><span class="nm">¿La malla curricular de su carrera ' +
+      'estuvo acorde a sus expectativas?</span><span class="fig">' + pct1(r.alta) + "</span></div>" +
+      franja(r.n, r.tot) + '<div class="strip-legend"><span>1 · Mínimo</span><span>' +
+      fmt.format(r.tot) + " valoraciones</span><span>Máximo · 7</span></div></div>";
+    return h + "</div>";
+  }
 
 
   /* Sexo con los símbolos ♀ ♂ que ya usa Perfil Estudiantil, para que las dos
@@ -1150,6 +1174,7 @@ svg { display:block; width:100%; height:auto; overflow:visible; }
       '<div class="grid2">' + panelCat("sector_economico", { color: "var(--az-5)" }) +
       panelCat("situacion_laboral", { color: "var(--az-2)" }) + "</div>",
     formacion: () => '<div class="grid2">' + panelPertinencia() + panelCompetencias() + "</div>" +
+      panelMallaCurricular() +
       '<div class="grid2">' +
       panelCompetenciasDetalle("Competencias generales", "Competencias generales adquiridas",
         "Las competencias transversales que la encuesta pregunta una por una, comunes a todas las " +
