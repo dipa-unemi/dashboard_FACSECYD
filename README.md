@@ -2,9 +2,9 @@
 
 Dashboard académico de perfil estudiantil para la FACSECYD.
 
-**🔗 Ver el dashboard en vivo:** https://evelyngarcia02.github.io/dashboard_FACSECYD/docs/index.html
+**🔗 Ver el dashboard en vivo:** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/index.html
 
-**🔗 Demo de inserción en Looker Studio (para evaluación interna):** https://evelyngarcia02.github.io/dashboard_FACSECYD/docs/demo-embed.html
+**🔗 Demo de inserción en Looker Studio (para evaluación interna):** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/demo-embed.html
 
 ## Estructura
 
@@ -15,30 +15,43 @@ scripts/  Agregación para el tablero: R (Población) y Python (Graduados)
 docs/     Dashboard web (HTML/CSS/JS), publicado con GitHub Pages
 ```
 
-El dashboard tiene tres pestañas:
+El dashboard tiene cuatro pestañas:
 
 | Pestaña | Qué responde | Archivo |
 |---|---|---|
 | Perfil Estudiantil | Quién entra a la facultad | `index.html` + `app.js` + `data.js` |
 | Rendimiento Académico | Cómo le va durante la carrera | `rendimiento_academico.html` |
+| Docentes | Quién enseña en la facultad | `docentes.html` + `docentes.js` + `docentes-data.js` |
 | Seguimiento a Graduados | Dónde termina después de titularse | `seguimiento_graduados.html` + `data_graduados.js` |
 
-Los datos fuente no se publican: cada pestaña se alimenta de un archivo ya agregado.
-Para Seguimiento a Graduados ese archivo lo genera el pipeline en Python de `scripts/`
-— ver `scripts/README_graduados.md`. Para Población, los scripts en R de la misma carpeta.
+## Manejo de los datos fuente
 
-## Requisitos
+**Los archivos de origen nunca entran al repositorio.** Contienen microdatos
+de personas identificables. Viven solo en la carpeta local `data/`, que está
+excluida por `.gitignore`, y se comparten por los canales internos de la
+facultad, no por GitHub.
 
-Este repositorio usa [Git LFS](https://git-lfs.com/) para los archivos `.xlsx`.
-Antes de clonar:
+Esto vale también para el historial: un archivo borrado en un commit
+posterior sigue siendo descargable desde los commits anteriores. Si alguna
+vez se sube uno por error, no basta con borrarlo en un commit nuevo — avisa
+antes de seguir trabajando.
+
+Como salvaguarda, `.gitignore` bloquea `data/` y cualquier `.xlsx` o `.xls`
+en todo el repositorio.
+
+## Cómo se alimenta cada pestaña
+
+Cada tablero lee un archivo ya agregado, sin datos personales:
+
+| Pestaña | Lo genera |
+|---|---|
+| Perfil Estudiantil | `scripts/agregar_datos.R` |
+| Rendimiento Académico | datos embebidos en el propio `rendimiento_academico.html` |
+| Docentes | `dashboard/Script_docentes.R` |
+| Seguimiento a Graduados | pipeline en Python de `scripts/` — ver `scripts/README_graduados.md` |
+
+## Clonar
 
 ```bash
-git lfs install
-git clone https://github.com/EvelynGarcia02/dashboard_FACSECYD.git
-```
-
-Si ya clonaste el repositorio sin LFS:
-
-```bash
-git lfs pull
+git clone https://github.com/dipa-unemi/dashboard_FACSECYD.git
 ```

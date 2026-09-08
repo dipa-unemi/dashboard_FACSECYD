@@ -25,6 +25,9 @@ desktop.ini
 
 # Datos fuente (privados, no deben estar en el repo público)
 data/
+# Segunda barrera: ningun Excel entra al repositorio, este donde este.
+*.xlsx
+*.xls
 
 # Tablas intermedias con datos personales (salida de scripts/01_depurar_graduados.py)
 build/
