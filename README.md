@@ -4,8 +4,6 @@ Dashboard académico de perfil estudiantil para la FACSECYD.
 
 **🔗 Ver el dashboard en vivo:** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/index.html
 
-**🔗 Demo de inserción en Looker Studio (para evaluación interna):** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/demo-embed.html
-
 ## Estructura
 
 ```
