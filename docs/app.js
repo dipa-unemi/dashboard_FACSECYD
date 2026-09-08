@@ -1114,6 +1114,17 @@
     return mainEl ? (mainEl.clientWidth - 72) : 1200;
   }
 
+  // Debe coincidir siempre con el "zoom" de .dash-grid-outer en styles.css.
+  // Antes el modo edición desactivaba ese zoom (volvía a 100%) para que
+  // arrastrar tarjetas fuera preciso, pero eso rompía el WYSIWYG: lo que se
+  // veía y ajustaba en modo edición no correspondía a cómo se veía después,
+  // guardado, en la vista normal (a escala reducida). Ahora el zoom se
+  // mantiene igual en ambos modos, y en su lugar la matemática de arrastre
+  // (más abajo) convierte los píxeles reales del mouse a la escala local
+  // dividiendo por CANVAS_ZOOM, para que el arrastre siga sintiéndose 1:1
+  // con el cursor aunque el lienzo se vea más chico.
+  const CANVAS_ZOOM = 0.75;
+
   let editMode = false;
 
   function makeGridController(gridEl, layoutKey, defaultPositions, heightPx){
@@ -1196,8 +1207,8 @@
       dragEl = handle.closest(".dcard");
       if (!dragEl) return;
       const r = dragEl.getBoundingClientRect();
-      dragOffX = e.clientX - r.left;
-      dragOffY = e.clientY - r.top;
+      dragOffX = (e.clientX - r.left) / CANVAS_ZOOM;
+      dragOffY = (e.clientY - r.top) / CANVAS_ZOOM;
       dragging = true;
       dragEl.classList.add("dragging");
       e.preventDefault();
@@ -1205,8 +1216,8 @@
     document.addEventListener("mousemove", (e)=>{
       if (!dragging || !dragEl) return;
       const gridRect = gridEl.getBoundingClientRect();
-      const left = Math.max(0, e.clientX - gridRect.left - dragOffX);
-      const top = Math.max(0, e.clientY - gridRect.top - dragOffY);
+      const left = Math.max(0, (e.clientX - gridRect.left) / CANVAS_ZOOM - dragOffX);
+      const top = Math.max(0, (e.clientY - gridRect.top) / CANVAS_ZOOM - dragOffY);
       dragEl.style.left = left + "px";
       dragEl.style.top = top + "px";
       updateGridHeight();
@@ -1242,12 +1253,12 @@
     document.getElementById("kpiGrid"),
     "facsecyd-dash-layout-kpi-v1",
     {
-      tituloIndicadores: { left:"15px",   top:"0px",  width:"1118px", height:"32px" },
-      kpiInscripciones:  { left:"83px",   top:"29px", width:"270px",  height:"164px" },
-      kpiDobleCarrera:   { left:"682px",  top:"34px", width:"275px",  height:"158px" },
-      kpiSexo:           { left:"377px",  top:"31px", width:"279px",  height:"162px" },
-      kpiDiscapacidad:   { left:"989px",  top:"36px", width:"279px",  height:"156px" },
-      kpiInternacional:  { left:"1290px", top:"35px", width:"257px",  height:"160px" }
+      tituloIndicadores: { left:"12px",   top:"0px",  width:"894px", height:"32px" },
+      kpiInscripciones:  { left:"57px",   top:"30px", width:"244px", height:"166px" },
+      kpiDobleCarrera:   { left:"577px",  top:"33px", width:"240px", height:"165px" },
+      kpiSexo:           { left:"316px",  top:"31px", width:"250px", height:"166px" },
+      kpiDiscapacidad:   { left:"830px",  top:"34px", width:"222px", height:"165px" },
+      kpiInternacional:  { left:"1067px", top:"33px", width:"232px", height:"168px" }
     },
     { tituloIndicadores:36, kpiInscripciones:110, kpiDobleCarrera:110, kpiSexo:110, kpiDiscapacidad:110, kpiInternacional:110 }
   );
@@ -1255,9 +1266,9 @@
     document.getElementById("dashGrid-academico"),
     "facsecyd-dash-layout-academico-v1",
     {
-      trend:   { left:"156px",     top:"4px",   width:"784px",  height:"302px" },
-      modsede: { left:"965.938px", top:"0px",   width:"461px",  height:"312px" },
-      carrera: { left:"162.938px", top:"323px", width:"1262px", height:"391px" }
+      trend:   { left:"156px",     top:"4px",   width:"789px",  height:"345px" },
+      modsede: { left:"956.938px", top:"0px",   width:"452px",  height:"348px" },
+      carrera: { left:"157.938px", top:"360px", width:"1262px", height:"391px" }
     },
     { trend:320, modsede:300, carrera:460 }
   );

@@ -497,7 +497,16 @@
   /* Dashboard: lienzo de posición libre. Cada tarjeta vive en position:absolute
      con su propio left/top/width/height (calculados en JS - ver computeDefaultLayout
      y loadLayout), sin ataduras a filas ni columnas. */
-  .dash-grid-outer { overflow-x: auto; width: 100%; flex: none; }
+  /* Vista compacta: encoge todo el lienzo (KPIs y gráficos) al 60% para que
+     quepa más sin desplazarse tanto vertical/horizontalmente a zoom de
+     navegador 100%. Usa el "zoom" nativo del navegador (no transform:scale)
+     porque así el ancho/alto que JS mide (offsetWidth/offsetHeight, usados
+     por chartW()/updateGridHeight()) ya vienen en la escala correcta y los
+     gráficos no quedan recortados. Se mantiene IGUAL en modo edición
+     (WYSIWYG: lo que arrastras/ajustas ahí es exactamente lo que ves después
+     en modo normal) -- la app.js correspondiente (CANVAS_ZOOM) compensa la
+     matemática de arrastre para que el cursor siga sintiéndose 1:1. */
+  .dash-grid-outer { overflow-x: auto; width: 100%; flex: none; zoom: 0.75; }
   .dash-grid { position: relative; width: 100%; }
   .dcard {
     position: absolute;
@@ -532,6 +541,15 @@
   body.edit-mode .dcard:hover { outline-color: var(--accent); z-index: 2; }
   body.edit-mode .dcard.dragging { opacity: 0.65; z-index: 50; }
   body.edit-mode .drag-handle { user-select: none; }
+  /* El lienzo se ve al mismo zoom reducido en modo edición (ver
+     .dash-grid-outer), así que el asa de arrastrar -- ya chica de por sí --
+     queda diminuta y difícil de agarrar con el mouse. Se le da un área de
+     clic mínima más grande sin agrandar mucho el glyph "::" visible. */
+  body.edit-mode .drag-handle {
+    min-width: 22px;
+    min-height: 22px;
+    justify-content: center;
+  }
 
   /* Título de sección: un .dcard sin fondo/borde de tarjeta, solo un
      encabezado -- se mueve y redimensiona igual que el resto en modo edición. */
