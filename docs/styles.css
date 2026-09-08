@@ -34,6 +34,11 @@
     --font-mono: Consolas, "Courier New", monospace;
 
     --topnav-h: 44px;
+    --brandbar-h: 56px;
+    --footer-h: 40px;
+    /* Alto total del marco fijo: banda + pestañas + pie. Lo que le
+       queda a cada tablero es 100vh menos esto. */
+    --chrome-h: calc(var(--brandbar-h) + var(--topnav-h) + var(--footer-h));
   }
 
   @media (prefers-color-scheme: dark) {
@@ -83,6 +88,7 @@
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    padding-bottom: var(--footer-h);
   }
   ::selection { background: var(--accent-soft); }
 
@@ -91,13 +97,79 @@
   .app {
     display: flex;
     flex-direction: column;
-    min-height: calc(100vh - var(--topnav-h));
+    min-height: calc(100vh - var(--chrome-h));
+  }
+
+  /* ---------- Marco institucional (banda y pie) ---------- */
+  /* Viven solo en index.html: las otras vistas se cargan dentro de
+     iframes, así que heredan este marco sin repetirlo. */
+  .brandbar {
+    position: sticky;
+    top: 0;
+    z-index: 41;
+    display: flex;
+    align-items: center;
+    height: var(--brandbar-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+  }
+  .brandbar-logo {
+    height: 34px;
+    width: auto;
+    /* Si el archivo aún no existe, se ve el texto alternativo y la
+       banda conserva su alto en lugar de colapsar. */
+    max-width: 320px;
+    object-fit: contain;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+
+  .sitefooter {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 41;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: var(--footer-h);
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 0 16px;
+  }
+  .sitefooter-logo {
+    height: 20px;
+    width: auto;
+    max-width: 240px;
+    object-fit: contain;
+    font-size: 11px;
+    color: var(--ink-muted);
+  }
+  /* DIPA viene en dos versiones: tinta azul y tinta blanca. Se muestra la
+     que contrasta con el fondo del tema activo. */
+  .sitefooter-logo--oscuro { display: none; }
+
+  /* El logo del vicerrectorado solo existe en tinta azul institucional, que
+     sobre el fondo oscuro (#002334) queda casi invisible. Como es de un solo
+     color, pasarlo a blanco puro reproduce el uso habitual sobre fondo
+     oscuro. Si más adelante llega el archivo blanco oficial, se reemplaza el
+     PNG y se borra este filtro. */
+  :root[data-theme="dark"] .brandbar-logo { filter: brightness(0) invert(1); }
+  :root[data-theme="dark"] .sitefooter-logo--claro { display: none; }
+  :root[data-theme="dark"] .sitefooter-logo--oscuro { display: block; }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .brandbar-logo { filter: brightness(0) invert(1); }
+    :root:not([data-theme="light"]) .sitefooter-logo--claro { display: none; }
+    :root:not([data-theme="light"]) .sitefooter-logo--oscuro { display: block; }
   }
 
   /* ---------- Pestañas de nivel superior ---------- */
   .top-tabs {
     position: sticky;
-    top: 0;
+    top: var(--brandbar-h);
     z-index: 40;
     display: flex;
     gap: 2px;
@@ -129,7 +201,7 @@
   .rendimiento-frame {
     display: block;
     width: 100%;
-    height: calc(100vh - var(--topnav-h));
+    height: calc(100vh - var(--chrome-h));
     border: 0;
   }
 
@@ -143,7 +215,7 @@
     gap: 20px;
     flex-wrap: wrap;
     position: sticky;
-    top: var(--topnav-h);
+    top: calc(var(--brandbar-h) + var(--topnav-h));
     z-index: 30;
   }
   .filterbar-fields {
