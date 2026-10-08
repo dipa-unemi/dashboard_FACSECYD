@@ -24,7 +24,12 @@ desktop.ini
 .Rhistory
 
 # Datos fuente (privados, no deben estar en el repo público)
-data/
+/data/
+# Bases depuradas del pipeline (microdatos): tampoco entran, esten donde esten.
+# (docs/data SI se publica: solo agregados, verificados por scripts/pipeline/06_verificar.py)
+*.parquet
+*.pkl
+_procesado/
 # Segunda barrera: ningun Excel entra al repositorio, este donde este.
 *.xlsx
 *.xls
