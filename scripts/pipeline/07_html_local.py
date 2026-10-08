@@ -18,9 +18,10 @@ DOCS = RAIZ / "docs"
 SALIDA = Path(sys.argv[1]) if len(sys.argv) > 1 else RAIZ.parent / "Dashboard_FACSECYD_local.html"
 
 html = (DOCS / "index.html").read_text(encoding="utf-8")
-# La versión anterior no viaja dentro del archivo local: el enlace va a la página publicada.
-html = html.replace('href="version-anterior.html"',
-                    'href="https://dipa-unemi.github.io/dashboard_FACSECYD/docs/version-anterior.html" target="_blank"')
+# Copia interna: lleva la marca «Nueva versión» junto al título (la página publicada no la muestra).
+html = html.replace("<h1>Dashboard de Desempeño de la Carrera</h1>",
+                    '<h1>Dashboard de Desempeño de la Carrera <span class="badge-version" '
+                    'title="Versión 2 (estructura FACS) · copia interna">Nueva versión</span></h1>', 1)
 
 
 def css(m):   # la dirección puede llevar ?v=... (versión para la caché del navegador): se ignora
