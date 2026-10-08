@@ -4,6 +4,17 @@ Dashboard académico de perfil estudiantil para la FACSECYD.
 
 **🔗 Ver el dashboard en vivo:** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/index.html
 
+## Tablero nuevo (en revisión)
+
+**Dashboard de Desempeño de la Carrera**, con el mismo diseño, vistas e indicadores que el
+tablero de la FACS: https://dipa-unemi.github.io/dashboard_FACSECYD/docs/tablero.html
+
+- Página `docs/tablero.html`, código `docs/js/app.js`, estilos `docs/css/tablero.css` y datos
+  agregados en `docs/data/`.
+- Los datos los genera el pipeline de `scripts/pipeline/` a partir de los extractos del SGA
+  (ver `scripts/pipeline/README.md`): `python scripts/pipeline/procesar_todo.py`.
+- Convive con el dashboard actual (`docs/index.html`) hasta que se apruebe el reemplazo.
+
 ## Estructura
 
 ```

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard de Desempeño - FACSECYD - UNEMI</title>
+<link rel="stylesheet" href="css/tablero.css">
+</head>
+<body>
+
+<!-- Encabezado fijo: el logo y los filtros quedan siempre a la vista -->
+<header class="appbar">
+  <img class="appbar-logo" src="img/logo-vicerrectorado.png"
+       alt="UNEMI - Vicerrectorado Académico de Formación de Grado">
+  <div class="appbar-titulo">
+    <h1>Dashboard de Desempeño de la Carrera</h1>
+    <p>Facultad de Ciencias Sociales, Educación Comercial y Derecho</p>
+  </div>
+  <div class="filters">
+    <!-- Las carreras se cargan desde el catálogo de los datos (FACS_DATA.carreras) -->
+    <div class="fld"><label for="fCarrera">Carrera</label><select id="fCarrera"></select></div>
+    <div class="fld"><label for="fModalidad">Modalidad</label><select id="fModalidad"></select></div>
+    <div class="fld"><label for="fNivel">Nivel</label><select id="fNivel"></select></div>
+    <div class="fld"><label for="fAnio">Periodo</label><select id="fAnio"></select></div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side">
+    <nav aria-label="Vistas del dashboard"><ul class="nav" id="nav"></ul></nav>
+  </aside>
+  <main class="main">
+    <div class="body" id="vista"></div>
+  </main>
+</div>
+
+<footer class="sitefooter">
+  <p class="fuente">Fuente: Sistema de Gestión Académica (SGA) de la UNEMI, periodos académicos 2021 – 2026.</p>
+  <img src="img/logo-dipa-blanco.png" alt="DIPA - Dirección de Innovación de Procesos Académicos">
+</footer>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<script src="data/indicadores.js"></script>
+<script src="data/facsecyd-data.js"></script>
+<script src="data/rendimiento-data.js"></script>
+<script src="data/graduados-data.js"></script>
+<script src="data/trayectoria-data.js"></script>
+<script src="data/perfil-data.js"></script>
+<script src="data/mapa-ecuador.js"></script>
+<script src="data/mapa-mundo.js"></script>
+<script src="data/docentes-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
