@@ -316,3 +316,8 @@ svg.chart text { font-family:var(--font); }
 .aviso-info { display:flex; gap:10px; align-items:flex-start; margin:0 0 14px; padding:10px 14px; font-size:12.5px;
   color:var(--ink2); background:var(--ok-lt); border:1px solid #b9d4e4; border-left:4px solid var(--ok); border-radius:var(--r); }
 .aviso-info b { color:var(--ok); white-space:nowrap; }
+/* FACSECYD: marca de nueva versión y enlace a la versión anterior */
+.badge-version { display:inline-block; vertical-align:middle; margin-left:8px; padding:2px 8px; font-size:10.5px; font-weight:700;
+  letter-spacing:.04em; text-transform:uppercase; color:#fff; background:var(--acento, #f48521); border-radius:999px; }
+.link-anterior { color:inherit; text-decoration:underline; text-underline-offset:2px; opacity:.85; }
+.link-anterior:hover { opacity:1; }

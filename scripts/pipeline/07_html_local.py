@@ -1,5 +1,5 @@
 """
-Paso 7 (opcional) · Empaqueta docs/tablero.html en UN solo archivo .html autocontenido
+Paso 7 (opcional) · Empaqueta docs/index.html (el tablero) en UN solo archivo .html autocontenido
 (estilos, código, datos y logos incrustados) para abrirlo con doble clic, sin servidor.
 
 Solo contiene lo mismo que se publica en docs/: datos agregados, sin microdatos.
@@ -17,15 +17,18 @@ from comun import RAIZ
 DOCS = RAIZ / "docs"
 SALIDA = Path(sys.argv[1]) if len(sys.argv) > 1 else RAIZ.parent / "Dashboard_FACSECYD_local.html"
 
-html = (DOCS / "tablero.html").read_text(encoding="utf-8")
+html = (DOCS / "index.html").read_text(encoding="utf-8")
+# La versión anterior no viaja dentro del archivo local: el enlace va a la página publicada.
+html = html.replace('href="version-anterior.html"',
+                    'href="https://dipa-unemi.github.io/dashboard_FACSECYD/docs/version-anterior.html" target="_blank"')
 
 
-def css(m):
-    return "<style>\n" + (DOCS / m.group(1)).read_text(encoding="utf-8") + "\n</style>"
+def css(m):   # la dirección puede llevar ?v=... (versión para la caché del navegador): se ignora
+    return "<style>\n" + (DOCS / m.group(1).split("?")[0]).read_text(encoding="utf-8") + "\n</style>"
 
 
 def js(m):
-    codigo = (DOCS / m.group(1)).read_text(encoding="utf-8").replace("</script", "<\\/script")
+    codigo = (DOCS / m.group(1).split("?")[0]).read_text(encoding="utf-8").replace("</script", "<\\/script")
     return "<script>\n" + codigo + "\n</script>"
 
 

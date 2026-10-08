@@ -1,21 +1,23 @@
 # Dashboard FACSECYD
 
-Dashboard académico de perfil estudiantil para la FACSECYD.
+Dashboard de Desempeño de la Carrera de la FACSECYD (nueva versión), con el mismo diseño,
+vistas e indicadores que el tablero de la FACS.
 
 **🔗 Ver el dashboard en vivo:** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/index.html
 
-## Tablero nuevo (en revisión)
-
-**Dashboard de Desempeño de la Carrera**, con el mismo diseño, vistas e indicadores que el
-tablero de la FACS: https://dipa-unemi.github.io/dashboard_FACSECYD/docs/tablero.html
-
-- Página `docs/tablero.html`, código `docs/js/app.js`, estilos `docs/css/tablero.css` y datos
+- Página `docs/index.html`, código `docs/js/app.js`, estilos `docs/css/tablero.css` y datos
   agregados en `docs/data/`.
 - Los datos los genera el pipeline de `scripts/pipeline/` a partir de los extractos del SGA
   (ver `scripts/pipeline/README.md`): `python scripts/pipeline/procesar_todo.py`.
-- Convive con el dashboard actual (`docs/index.html`) hasta que se apruebe el reemplazo.
+- `docs/tablero.html` solo redirige a la página principal (dirección usada durante la revisión).
 
-## Estructura
+## Versión anterior
+
+El dashboard anterior (cuatro pestañas, generado con el extracto del SGA de agosto de 2026) se conserva sin actualizar en
+https://dipa-unemi.github.io/dashboard_FACSECYD/docs/version-anterior.html. Lo que sigue describe
+esa versión.
+
+## Estructura de la versión anterior
 
 ```
 data/     Fuentes de datos en formato Excel (privadas, fuera del repositorio)
@@ -28,7 +30,7 @@ El dashboard tiene cuatro pestañas:
 
 | Pestaña | Qué responde | Archivo |
 |---|---|---|
-| Perfil Estudiantil | Quién entra a la facultad | `index.html` + `app.js` + `data.js` |
+| Perfil Estudiantil | Quién entra a la facultad | `version-anterior.html` + `app.js` + `data.js` |
 | Rendimiento Académico | Cómo le va durante la carrera | `rendimiento_academico.html` |
 | Docentes | Quién enseña en la facultad | `docentes.html` + `docentes.js` + `docentes-data.js` |
 | Seguimiento a Graduados | Dónde termina después de titularse | `seguimiento_graduados.html` + `data_graduados.js` |
