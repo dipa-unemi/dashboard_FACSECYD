@@ -1,49 +1,46 @@
-# Dashboard FACSECYD
+# Dashboard de Desempeño de la Carrera - FACSECYD - UNEMI
 
-Dashboard de Desempeño de la Carrera de la FACSECYD, con el mismo diseño, vistas e
-indicadores que el tablero de la FACS.
+Tablero de seguimiento de la Facultad de Ciencias Sociales, Educación Comercial y
+Derecho: 16 carreras en modalidad en línea, presencial y semipresencial.
 
-**🔗 Ver el dashboard en vivo:** https://dipa-unemi.github.io/dashboard_FACSECYD/docs/index.html
+**Ver el dashboard:** https://dipa-unemi.github.io/dashboard_FACSECYD/
 
-## Estructura
+## Qué muestra
 
-```
-docs/              Dashboard web publicado con GitHub Pages
-  index.html         página del tablero
-  js/app.js          código del tablero
-  css/tablero.css    estilos
-  data/              datos agregados (sin información de personas) que lee el tablero
-  img/               logos institucionales
-scripts/pipeline/  Proceso que genera docs/data/ a partir de los extractos del SGA
-```
+| Vista | Qué responde |
+|---|---|
+| Vista general | Los indicadores principales de un vistazo |
+| 1. Estudiantes | Cuatro pestañas: **Trayectoria** (matrícula, retención, deserción y graduación por cohorte), **Perfil sociodemográfico** (sexo, edad de ingreso, etnia, discapacidad, nivel socioeconómico y procedencia), **Rendimiento académico** (aprobación, reprobación, notas, asistencia y repetición por periodo, nivel y grupo de estudiantes) y **Seguimiento a graduados** (trayectoria, condiciones del empleo y formación y vinculación, por año de encuesta y momento) |
+| 2. Grupos de interés | Cómo perciben la carrera los estudiantes, los graduados y los docentes |
+| 3. Cuerpo docente | Planta docente, nivel académico, doctorado, evaluación del desempeño, capacitación, dedicación, perfil demográfico y provincia |
+| 4. Investigación y actividad académica | Cuánto publica el cuerpo docente, en qué revistas y con quién |
+| 5. Vinculación e impacto | Proyectos con la comunidad, personas que se propusieron atender y resultados |
+| 6. Servicios de apoyo | Cobertura de tutorías y becas, y satisfacción con los servicios |
 
-- Los datos se regeneran con `python scripts/pipeline/procesar_todo.py` (ver
-  `scripts/pipeline/README.md`). El paso 06 verifica que no se publiquen identificadores
-  ni carreras excluidas y que se apliquen los umbrales de protección de datos.
-- `docs/tablero.html` solo redirige a la página principal (dirección usada durante la revisión).
-- Identificación interna: versión 2 (estructura FACS, octubre 2026). La marca está en
-  `docs/index.html` (`<meta name="dashboard-version">`) y no se muestra en la página
-  publicada; la copia local que genera `scripts/pipeline/07_html_local.py` sí la muestra.
-- Las carpetas `dashboard/` y los demás scripts de `scripts/` son los procesos de la
-  versión 1, que ya no se publica.
+Cada vista presenta los indicadores con su resultado y su tendencia frente a la
+medición anterior, los gráficos históricos y una tabla de resultados del periodo.
 
-## Manejo de los datos fuente
+## Cómo se usa
 
-**Los archivos de origen nunca entran al repositorio.** Contienen microdatos
-de personas identificables. Viven fuera del repositorio (la carpeta
-`Base de datos nuevas`, al lado de esta, o la que indique `FACSECYD_DATA_DIR`)
-y se comparten por los canales internos de la facultad, no por GitHub.
+- **Filtros superiores:** modalidad, carrera, nivel (1.er nivel en adelante) y periodo. La
+  modalidad acota la lista de carreras; sin elegir carrera se ve toda la facultad o toda la
+  modalidad. El periodo es por año en todo el tablero, salvo en Rendimiento académico, que
+  se filtra por semestre (1S 2021, 2S 2021...). El nivel aplica a los indicadores de
+  estudiantes: satisfacción, tutorías y becas.
+- **Filtro cruzado:** al pulsar un punto o una barra, todo el tablero pasa a ese
+  periodo; al pulsar una carrera en la leyenda, pasa a esa carrera; al pulsar un
+  nivel socioeconómico, los indicadores de estudiantes se recalculan para ese grupo.
+- **Rendimiento académico** tiene además un selector de grupo de estudiantes (sexo,
+  etnia, tipo de ingreso, cohorte, número de matrícula); también se filtra pulsando
+  un nivel, una matrícula o una banda de los histogramas de nota y asistencia. Un
+  grupo a la vez.
+- **Seguimiento a graduados** se filtra por momento de la encuesta (al titularse, al año,
+  a los dos años) y por grupo (sexo, año de titulación o nivel socioeconómico).
+- El ícono **i** de cada indicador explica qué mide y de dónde sale.
 
-Esto vale también para el historial: un archivo borrado en un commit
-posterior sigue siendo descargable desde los commits anteriores. Si alguna
-vez se sube uno por error, no basta con borrarlo en un commit nuevo — avisa
-antes de seguir trabajando.
-
-Como salvaguarda, `.gitignore` bloquea `/data/`, cualquier `.xlsx`, `.xls`,
-`.parquet` o `.pkl`, y la carpeta `_procesado/`, en todo el repositorio.
-
-## Clonar
-
-```bash
-git clone https://github.com/dipa-unemi/dashboard_FACSECYD.git
-```
+Los datos son agregados por carrera y periodo: el tablero no contiene
+información de personas. Los grupos con menos de 10 personas no se publican y las
+categorías con menos de 5 casos se agrupan; la excepción es el Perfil
+sociodemográfico, que muestra los conteos completos por decisión de la Dirección y lo
+advierte en pantalla. Estos umbrales se aplican al generar los archivos de
+`docs/data/`, no solo en la pantalla.

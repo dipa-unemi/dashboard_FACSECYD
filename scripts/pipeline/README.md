@@ -24,7 +24,13 @@ Requiere Python 3 con `pandas`, `pyarrow` y `python-calamine`:
 
 Los extractos viven en `../Base de datos nuevas` (al lado del repositorio) o en
 la carpeta que indique la variable `FACSECYD_DATA_DIR`. **Nunca entran al
-repositorio**: `.gitignore` bloquea `/data/`, `*.xlsx`, `*.parquet` y `_procesado/`.
+repositorio**: `.gitignore` bloquea `/data/`, `*.xlsx`, `*.xls`, `*.parquet`, `*.pkl` y
+`_procesado/`. Contienen microdatos de personas identificables y se comparten por los
+canales internos de la facultad, no por GitHub.
+
+Esto vale también para el historial: un archivo borrado en un commit posterior sigue
+siendo descargable desde los commits anteriores. Si alguna vez se sube uno por error, no
+basta con borrarlo en un commit nuevo: avisa antes de seguir trabajando.
 
 La base de estudiantes supera el límite de filas de Excel: se exporta en partes
 y se convierte con `scripts/00_estudiantes_a_parquet.R` (en RStudio). Si el
