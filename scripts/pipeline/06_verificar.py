@@ -5,12 +5,14 @@ Falla (código de salida 1) si:
   * aparece un nombre de columna con identificadores de personas;
   * aparece una carrera que no está en el catálogo o una combinación excluida;
   * un grupo publicado tiene menos de MIN_BASE estudiantes;
+  * una cifra suprimida puede deducirse restando (falta correr 05b_proteger.py);
   * la matrícula de un periodo no cuadra entre facsecyd-data.js y rendimiento-data.js.
 Además imprime un resumen por carrera para revisar a ojo.
 """
 import json
 import re
 import sys
+from pathlib import Path
 
 from comun import CARRERAS, CLAVES, EXCLUIR_PRESENCIAL, FACULTAD, MIN_BASE, MODALIDADES, SALIDA, estado
 
@@ -91,6 +93,17 @@ for k in CLAVES:
     vin = next((p["v"] for p in D["FACS_DATA"]["ind"]["vin_proy"].get(k, []) if p["a"] == 2025), None)
     print(f"{nombres[k][:41]:<42}{mat if mat is not None else '—':>14}{dn if dn is not None else '—':>12}"
           f"{enc if enc is not None else '—':>16}{pub if pub is not None else '—':>13}{vin if vin is not None else '—':>15}")
+
+# Supresión complementaria: ninguna celda suprimida se deduce restando (ver 05b_proteger.py)
+import importlib.util
+_spec = importlib.util.spec_from_file_location("proteger", Path(__file__).with_name("05b_proteger.py"))
+proteger = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(proteger)
+_datos = {a: proteger.leer(a) for a in ["rendimiento-data.js", "trayectoria-data.js", "graduados-data.js", "facsecyd-data.js"]}
+_jer = proteger.jerarquia_de(_datos)
+for _t in proteger.tablas(_datos):
+    for total, p, oculta, resta, _ in proteger.deducibles(_t, _jer):
+        errores.append(f"{_t.nombre}: {oculta} {p} se deduce restando de {total} ({resta})")
 
 for a in avisos:
     print("AVISO:", a)

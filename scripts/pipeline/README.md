@@ -4,7 +4,7 @@ Convierte los extractos del SGA en los archivos agregados que lee el tablero
 (`docs/data/*.js`), con la misma estructura que el dashboard de referencia FACS.
 
 ```
-python scripts/pipeline/procesar_todo.py            # todo, de 01 a 06
+python scripts/pipeline/procesar_todo.py            # todo, de 01 a 06 (con 05b)
 python scripts/pipeline/procesar_todo.py --desde 2  # reutiliza las bases ya preparadas
 ```
 
@@ -18,7 +18,8 @@ Requiere Python 3 con `pandas`, `pyarrow` y `python-calamine`:
 | `03_agregar_docentes.py` | Planta, nivel académico, dedicación, evaluación, capacitación, perfil | `docs/data/docentes-data.js` |
 | `04_agregar_graduados.py` | Empleabilidad, condiciones del empleo, competencias, cobertura | `docs/data/graduados-data.js` |
 | `05_agregar_estudiantes.py` | Trayectoria, perfil sociodemográfico y rendimiento | `trayectoria-`, `perfil-`, `rendimiento-data.js` |
-| `06_verificar.py` | Sin identificadores, sin carreras excluidas, umbrales aplicados, cifras que cuadran | resumen por carrera |
+| `05b_proteger.py` | Supresión complementaria: oculta además lo necesario para que ninguna cifra suprimida se deduzca restando | reescribe `docs/data/*.js` (solo quita cifras) |
+| `06_verificar.py` | Sin identificadores, sin carreras excluidas, umbrales aplicados, nada deducible por resta, cifras que cuadran | resumen por carrera |
 
 ## Dónde están los datos
 
@@ -48,4 +49,8 @@ paso 01 solo encuentra el `.xlsx` cortado, marca las cifras de estudiantes como
 - **Duración de las carreras** (`DURACION_NIVELES`): por confirmar; mientras tanto,
   el nivel más alto observado, con un mínimo de 8.
 - **Protección de datos:** grupos de menos de 10 personas no se publican; categorías
-  de menos de 5 casos se agrupan.
+  de menos de 5 casos se agrupan. Además, `05b_proteger.py` aplica supresión
+  complementaria: si el total y todas las categorías menos una están publicados (o la
+  modalidad y todas sus carreras menos una, o el año y todos sus momentos de encuesta
+  menos uno), oculta también la categoría publicada más pequeña. El Perfil
+  sociodemográfico no aplica umbral (decisión de la Dirección).

@@ -34,5 +34,5 @@ _procesado/
 *.xlsx
 *.xls
 
-# Tablas intermedias con datos personales (salida de scripts/01_depurar_graduados.py)
+# Tablas intermedias con datos personales (versión anterior del tablero)
 build/

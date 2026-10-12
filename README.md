@@ -39,8 +39,9 @@ medición anterior, los gráficos históricos y una tabla de resultados del peri
 - El ícono **i** de cada indicador explica qué mide y de dónde sale.
 
 Los datos son agregados por carrera y periodo: el tablero no contiene
-información de personas. Los grupos con menos de 10 personas no se publican y las
-categorías con menos de 5 casos se agrupan; la excepción es el Perfil
+información de personas. Los grupos con menos de 10 personas no se publican (con
+supresión complementaria, para que no puedan deducirse restando) y las categorías con
+menos de 5 casos se agrupan; la excepción es el Perfil
 sociodemográfico, que muestra los conteos completos por decisión de la Dirección y lo
 advierte en pantalla. Estos umbrales se aplican al generar los archivos de
 `docs/data/`, no solo en la pantalla.
