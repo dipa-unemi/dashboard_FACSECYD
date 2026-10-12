@@ -31,9 +31,9 @@ button, select { font-family:var(--font); }
   border-bottom:3px solid var(--az-1); box-shadow:0 2px 10px rgba(28,50,71,.06);
   display:flex; align-items:center; gap:22px; padding:0 24px; }
 .appbar-logo { height:50px; width:auto; flex:0 0 auto; }
-.appbar-titulo { border-left:1px solid var(--edge2); padding-left:22px; min-width:0; }
-.appbar-titulo h1 { font-size:19px; font-weight:700; letter-spacing:-.01em; line-height:1.15; color:var(--az-1); white-space:nowrap; }
-.appbar-titulo p { font-size:12px; color:var(--ink3); margin-top:2px; white-space:nowrap; }
+.appbar-titulo { border-left:1px solid var(--edge2); padding-left:22px; min-width:0; flex:0 1 auto; }
+.appbar-titulo h1 { font-size:19px; font-weight:700; letter-spacing:-.01em; line-height:1.15; color:var(--az-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.appbar-titulo p { font-size:12px; color:var(--ink3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sitefooter { background:var(--az-1); padding:16px 28px; display:flex; justify-content:space-between; align-items:center; gap:16px 24px; flex-wrap:wrap; }
 .sitefooter .fuente { margin:0; color:#fff; font-size:13px; line-height:1.4; opacity:.9; }
 .sitefooter img { height:40px; width:auto; }
@@ -55,7 +55,11 @@ button, select { font-family:var(--font); }
 .nav-sep { height:1px; background:rgba(255,255,255,.1); margin:8px 6px; }
 
 .main { min-width:0; padding-bottom:44px; }
-.filters { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-left:auto; }
+.filters { display:flex; gap:10px; align-items:flex-end; flex-wrap:nowrap; margin-left:auto; flex:0 0 auto; }
+/* Los cuatro filtros van en una sola línea: los nombres de carrera largos se recortan en el
+   selector (la lista desplegada los muestra completos) y el periodo no baja a otra fila. */
+#fCarrera { width:220px; min-width:0; text-overflow:ellipsis; }
+#fNivel, #fAnio { min-width:96px; }
 .fld { display:flex; flex-direction:column; gap:3px; }
 .fld label { font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); font-weight:700; }
 .fld select, .rfbar select { font-size:13px; color:var(--ink); background:var(--paper); border:1px solid var(--edge2);
@@ -290,8 +294,9 @@ svg.chart text { font-family:var(--font); }
 .segbtn:hover { border-color:var(--az-4); }
 .segbtn.on { background:var(--az-2); color:#fff; border-color:var(--az-2); }
 
-@media (max-width:1180px){
+@media (max-width:1365px){
   .appbar { height:auto; position:static; flex-wrap:wrap; padding:12px 20px; gap:12px 20px; }
+  .filters { flex-wrap:wrap; }
   .appbar-titulo h1, .appbar-titulo p { white-space:normal; }
   .filters { margin-left:0; }
   .side { top:0; height:100vh; }
